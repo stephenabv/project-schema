@@ -1,0 +1,78 @@
+import type { ApiErrorCode } from "@/types/api";
+
+/**
+ * Base class for every expected failure. `message` is safe to show to the
+ * client; anything sensitive belongs in logs, never in the message.
+ */
+export abstract class AppError extends Error {
+  abstract readonly status: number;
+  abstract readonly code: ApiErrorCode;
+
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = new.target.name;
+  }
+
+  /** Extra response headers (for example Retry-After). */
+  headers(): Record<string, string> {
+    return {};
+  }
+}
+
+export class AuthenticationError extends AppError {
+  readonly status = 401;
+  readonly code = "AUTHENTICATION_REQUIRED" as const;
+
+  constructor(message = "Authentication required") {
+    super(message);
+  }
+}
+
+export class ValidationError extends AppError {
+  readonly status = 400;
+  readonly code = "VALIDATION_FAILED" as const;
+}
+
+export class PayloadTooLargeError extends AppError {
+  readonly status = 413;
+  readonly code = "PAYLOAD_TOO_LARGE" as const;
+
+  constructor(message = "Request body is too large") {
+    super(message);
+  }
+}
+
+export class NotFoundError extends AppError {
+  readonly status = 404;
+  readonly code = "NOT_FOUND" as const;
+}
+
+export class ConflictError extends AppError {
+  readonly status = 409;
+  readonly code = "IDEMPOTENCY_CONFLICT" as const;
+}
+
+export class RateLimitError extends AppError {
+  readonly status = 429;
+
+  constructor(
+    readonly code: "COOLDOWN_ACTIVE" | "DAILY_LIMIT_REACHED",
+    message: string,
+    readonly retryAfterSeconds: number,
+  ) {
+    super(message);
+  }
+
+  override headers(): Record<string, string> {
+    return { "Retry-After": String(this.retryAfterSeconds) };
+  }
+}
+
+export class InternalError extends AppError {
+  readonly status = 500;
+  readonly code = "INTERNAL_ERROR" as const;
+
+  constructor(message = "Something went wrong. Please try again.", options?: ErrorOptions) {
+    super(message, options);
+  }
+}

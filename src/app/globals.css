@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+/* Light fintech design tokens (blueprint section 15). */
+:root {
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --primary: #059669;
+  --primary-hover: #047857;
+  --success-surface: #d1fae5;
+  --success-text: #065f46;
+  --danger-surface: #fee2e2;
+  --danger-text: #991b1b;
+  --warning-surface: #fef3c7;
+  --warning-text: #92400e;
+  --radius-card: 16px;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-success-surface: var(--success-surface);
+  --color-success-text: var(--success-text);
+  --color-danger-surface: var(--danger-surface);
+  --color-danger-text: var(--danger-text);
+  --color-warning-surface: var(--warning-surface);
+  --color-warning-text: var(--warning-text);
+  --radius-card: var(--radius-card);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@keyframes reward-float {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -56px);
+  }
+}
+
+@keyframes tap-pulse {
+  from {
+    transform: scale(0.96);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.animate-reward-float {
+  animation: reward-float 900ms ease-out forwards;
+}
+
+.animate-tap-pulse {
+  animation: tap-pulse 160ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-reward-float,
+  .animate-tap-pulse {
+    animation: none;
+  }
+  .animate-reward-float {
+    opacity: 0;
+  }
+}
