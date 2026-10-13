@@ -1,0 +1,7 @@
+-- Virtual Earn seed data.
+--
+-- Intentionally empty. Accounts, wallets and ledger rows are created only by
+-- real sign-ups and server-validated rewards, so every number the app shows
+-- comes from recorded events. If you add sample data for local development,
+-- mark it clearly as sample data (for example with source_type = 'sample')
+-- and never load it into production.

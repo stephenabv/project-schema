@@ -1,0 +1,119 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Suspense } from "react";
+import { Disclosure } from "@/components/layout/disclosure";
+import { PageHeader } from "@/components/layout/page-header";
+import { Alert } from "@/components/ui/alert";
+import { buttonClass } from "@/components/ui/button";
+import { Card, CardTitle } from "@/components/ui/card";
+import { LoadingCard, Skeleton } from "@/components/ui/skeleton";
+import { VirtualBadge } from "@/components/ui/virtual-badge";
+import { LedgerFilters } from "@/components/wallet/ledger-filters";
+import { LedgerTable } from "@/components/wallet/ledger-table";
+import { getSessionOrRedirect } from "@/lib/auth/session";
+import { ValidationError } from "@/lib/errors";
+import { formatCoins } from "@/lib/formatting/coins";
+import { formatDateTimeUtc } from "@/lib/formatting/dates";
+import { queryRecord, transactionQuerySchema, type TransactionQuery } from "@/lib/validation/transactions";
+import { WalletService } from "@/services/wallet";
+
+export const metadata: Metadata = { title: "Wallet" };
+
+export default function WalletPage({ searchParams }: PageProps<"/wallet">) {
+  return (
+    <>
+      <PageHeader title="Virtual wallet" description="Your virtual coin balance and every recorded activity." />
+      <div className="flex flex-col gap-4">
+        <Disclosure compact />
+        <Suspense fallback={<WalletSkeleton />}>
+          <WalletContent searchParams={searchParams} />
+        </Suspense>
+      </div>
+    </>
+  );
+}
+
+async function WalletContent({ searchParams }: { searchParams: PageProps<"/wallet">["searchParams"] }) {
+  const { supabase, user } = await getSessionOrRedirect("/wallet");
+  const raw = queryRecord(await searchParams);
+  const wallet = new WalletService(supabase);
+  const parsed = transactionQuerySchema.safeParse(raw);
+
+  const balance = await wallet.getWallet(user.id);
+  const filters = { type: raw.type, from: raw.from, to: raw.to };
+
+  return (
+    <>
+      <Card className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CardTitle>{balance.label}</CardTitle>
+          <VirtualBadge />
+        </div>
+        <p className="text-4xl font-bold tabular-nums">{formatCoins(balance.balanceCoins)}</p>
+        <p className="text-xs text-muted">Last updated {formatDateTimeUtc(balance.updatedAt)}</p>
+      </Card>
+
+      <Card className="flex flex-col gap-4">
+        <CardTitle>Activity</CardTitle>
+        <LedgerFilters {...filters} />
+        {parsed.success ? (
+          <Ledger wallet={wallet} query={parsed.data} filters={filters} />
+        ) : (
+          <Alert tone="danger">{parsed.error.issues[0]?.message ?? "Invalid filters"}</Alert>
+        )}
+      </Card>
+    </>
+  );
+}
+
+async function Ledger({
+  wallet,
+  query,
+  filters,
+}: {
+  wallet: WalletService;
+  query: TransactionQuery;
+  filters: Record<string, string | undefined>;
+}) {
+  let page;
+  try {
+    page = await wallet.listTransactions(query);
+  } catch (error) {
+    if (error instanceof ValidationError) return <Alert tone="danger">{error.message}</Alert>;
+    throw error;
+  }
+
+  const base = new URLSearchParams(
+    Object.entries(filters).filter((entry): entry is [string, string] => Boolean(entry[1])),
+  );
+  const nextHref = page.nextCursor ? `/wallet?${new URLSearchParams([...base, ["cursor", page.nextCursor]])}` : null;
+
+  return (
+    <>
+      <LedgerTable items={page.items} />
+      <nav aria-label="Activity pages" className="flex justify-between gap-3">
+        {query.cursor ? (
+          <Link href={`/wallet${base.size ? `?${base}` : ""}`} className={buttonClass("ghost")}>
+            Back to newest
+          </Link>
+        ) : (
+          <span />
+        )}
+        {nextHref ? (
+          <Link href={nextHref} className={buttonClass("secondary")}>
+            Older activity
+          </Link>
+        ) : null}
+      </nav>
+    </>
+  );
+}
+
+function WalletSkeleton() {
+  return (
+    <>
+      <LoadingCard label="Loading wallet" />
+      <Skeleton className="h-80" />
+    </>
+  );
+}
