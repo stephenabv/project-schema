@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createTestDatabase, createUser, hasDatabase, type TestDatabase } from "./support/database";
 
@@ -15,7 +17,7 @@ describe.skipIf(!hasDatabase)("signup provisioning", () => {
   async function provisioned(userId: string) {
     const { rows } = await db.pool.query(
       `select p.username, w.balance_coins::int as balance, r.role, s.taps_today
-         from public.profiles p
+         from public.player_profiles p
          join public.wallets w on w.user_id = p.id
          join public.user_roles r on r.user_id = p.id
          join public.tap_state s on s.user_id = p.id
@@ -55,5 +57,30 @@ describe.skipIf(!hasDatabase)("signup provisioning", () => {
   it("generates a username when none is supplied", async () => {
     const id = await createUser(db.pool, {});
     expect((await provisioned(id)).username).toMatch(/^user_[0-9a-f]{12}$/);
+  });
+
+  it("provisions pre-existing auth users once, without touching existing accounts", async () => {
+    const backfill = readFileSync(
+      path.resolve(__dirname, "../../../supabase/migrations/0005_provision_existing_users.sql"),
+      "utf8",
+    );
+    const existing = await createUser(db.pool, { username: "kept_name" });
+    await db.pool.query("update public.wallets set balance_coins = 40 where user_id = $1", [existing]);
+
+    // A user created before the trigger existed has no Virtual Earn rows.
+    const legacy = await createUser(db.pool);
+    await db.pool.query("delete from public.player_profiles where id = $1", [legacy]);
+    expect(await provisioned(legacy)).toBeUndefined();
+
+    await db.pool.query(backfill);
+    await db.pool.query(backfill);
+
+    expect(await provisioned(legacy)).toEqual({
+      username: `user_${legacy.replace(/-/g, "").slice(0, 12)}`,
+      balance: 0,
+      role: "user",
+      taps_today: 0,
+    });
+    expect(await provisioned(existing)).toMatchObject({ username: "kept_name", balance: 40 });
   });
 });

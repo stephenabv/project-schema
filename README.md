@@ -44,7 +44,8 @@ src/
   proxy.ts              Next.js 16 request proxy (session refresh + optimistic redirects)
   types/                database.ts (Supabase types) and api.ts (public contracts)
 supabase/
-  migrations/           0001 schema · 0002 reward function · 0003 RLS/privileges · 0004 read models
+  migrations/           0001 schema · 0002 reward function · 0003 RLS/privileges · 0004 read models ·
+                        0005 provision pre-existing auth users
 tests/
   unit/                 schemas, services, tap client, error mapping, HTTP helpers
   integration/api/      route handlers end to end with a fake auth boundary
@@ -119,7 +120,7 @@ grants) and then every migration, so it proves the migrations revoke those defau
 - Identity always comes from `supabase.auth.getUser()` on the server, never from a client-supplied id. The proxy
   redirect is a convenience; every page, Server Action and Route Handler re-verifies.
 - Supabase grants `anon` and `authenticated` broad default privileges on new public tables. Migration 0003 revokes
-  them on every table, then grants only `SELECT` (plus `UPDATE (username, avatar_url)` on profiles). Clients cannot
+  them on every table, then grants only `SELECT` (plus `UPDATE (username, avatar_url)` on `player_profiles`). Clients cannot
   write balances, the ledger, tap state or roles; ledger rows are additionally immutable via trigger.
 - All functions use `SET search_path = ''` and fully qualified names; `EXECUTE` is revoked from `public`/`anon`.
 - Signup never reads a role from user metadata. Requested usernames are validated and fall back to a generated
@@ -131,9 +132,13 @@ grants) and then every migration, so it proves the migrations revoke those defau
 
 ## Deployment (Vercel + Supabase)
 
-1. Create **separate** Supabase projects for development and production.
+1. Create **separate** Supabase projects for development and production. If Virtual Earn must share a project with
+   another app, note that its tables (`player_profiles`, `wallets`, `transactions`, `tap_state`, `user_roles`) and
+   functions live in `public`, its signup trigger provisions an account for **every** new auth user, and migration
+   0005 provisions accounts for users who already exist. Users of the other app can sign in to Virtual Earn.
 2. Review, then apply migrations: `npx supabase link --project-ref <ref>` and `npx supabase db push`.
-3. In Supabase Auth, set the Site URL and add `https://<your-domain>/auth/callback` to the redirect allow list.
+3. In Supabase Auth, set the Site URL (leave it alone on a shared project; auth emails use an explicit redirect)
+   and add `https://<your-domain>/auth/callback` to the redirect allow list.
    Enable email confirmation and configure SMTP for production.
 4. In Vercel, set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `NEXT_PUBLIC_APP_URL` per
    environment, then deploy.

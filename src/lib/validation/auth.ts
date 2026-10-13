@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-/** Must match the CHECK constraint on public.profiles.username. */
+/** Must match the CHECK constraint on public.player_profiles.username. */
 export const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,24}$/;
 
 export const emailSchema = z.string().trim().toLowerCase().pipe(z.email("Enter a valid email address").max(254));
