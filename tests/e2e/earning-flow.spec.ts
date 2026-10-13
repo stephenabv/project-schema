@@ -26,22 +26,22 @@ test("a new user taps and sees server-confirmed running earnings", async ({ page
   await page.getByRole("link", { name: "Start tapping" }).click();
   await expect(page).toHaveURL(/\/earn$/);
 
-  // The first tap pays 10 VC and unlocks the "First Tap" badge (+10 VC).
+  // The first tap pays 2 VC and unlocks the "First Tap" badge (+10 VC).
   const tapButton = page.getByRole("button", { name: /Tap to earn/ });
   await tapButton.click();
-  await expect(page.getByText("20 VC", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("1 / 1,000")).toBeVisible();
+  await expect(page.getByText("12 VC", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("1 / 500")).toBeVisible();
   await expect(page.getByText(/New badge unlocked: First Tap/)).toBeVisible();
 
   // Wait out the one-second server cooldown, then tap again.
   await expect(tapButton).toHaveAttribute("aria-disabled", "false", { timeout: 5_000 });
   await tapButton.click();
-  await expect(page.getByText("30 VC", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("2 / 1,000")).toBeVisible();
+  await expect(page.getByText("14 VC", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("2 / 500")).toBeVisible();
 
   // The balance is persisted server-side, not just in the browser.
   await page.reload();
-  await expect(page.getByText("30 VC", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("14 VC", { exact: true }).first()).toBeVisible();
 
   // The one-time "First Steps" mission is complete; claiming it also unlocks "On a Mission".
   await page.goto("/missions");
@@ -68,14 +68,14 @@ test("a new user taps and sees server-confirmed running earnings", async ({ page
 
   await page.goto("/dashboard");
   await expect(page.getByText("Taps completed")).toBeVisible();
-  // 2 taps (20) + First Tap (10) + First Steps (25) + On a Mission (50).
-  await expect(page.getByText("105 VC", { exact: true }).first()).toBeVisible();
+  // 2 taps (4) + First Tap (10) + First Steps (25) + On a Mission (50).
+  await expect(page.getByText("89 VC", { exact: true }).first()).toBeVisible();
   await expect(page.getByRole("figure")).toBeVisible();
 
   // Daily check-in: day one pays 20 VC, and a second claim the same UTC day is refused.
   await page.getByRole("button", { name: "Claim +20 VC" }).click();
   await expect(page.getByText(/Claimed \+20 VC/)).toBeVisible();
-  await expect(page.getByText("125 VC", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("109 VC", { exact: true }).first()).toBeVisible();
   const bonusAgain = await page.request.post("/api/daily-bonus", { data: { idempotencyKey: randomUUID() } });
   expect(bonusAgain.status()).toBe(409);
 
@@ -98,10 +98,20 @@ test("a new user taps and sees server-confirmed running earnings", async ({ page
 
   // The idle generator costs more than a new player holds, and nothing accrues before it is built.
   await page.goto("/generator");
-  await expect(page.getByRole("heading", { name: "Idle generator" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Starter generator" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Build for 150 VC" })).toBeDisabled();
   const early = await page.request.post("/api/generator/collect", { data: { idempotencyKey: randomUUID() } });
   expect(early.status()).toBe(404);
+
+  // Robots are bought with virtual coins only, and the server refuses a purchase the balance cannot cover.
+  await page.goto("/robots");
+  await expect(page.getByRole("heading", { name: "Scout Bot" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Buy Scout Bot for 500 VC" })).toBeDisabled();
+  const robots = (await (await page.request.get("/api/robots")).json()) as { robots: { id: string; slug: string }[] };
+  const scout = robots.robots.find((r) => r.slug === "scout-bot");
+  expect(scout).toBeDefined();
+  const unaffordable = await page.request.post(`/api/robots/${scout!.id}/purchase`, { data: { idempotencyKey: randomUUID() } });
+  expect(unaffordable.status()).toBe(409);
 
   // The browser session cannot be used to inflate the balance directly.
   const forged = await page.request.post("/api/earn/tap", {
