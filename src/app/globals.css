@@ -15,8 +15,42 @@
   --danger-text: #991b1b;
   --warning-surface: #fef3c7;
   --warning-text: #92400e;
+  /* Solid fills that carry white text (badges). */
+  --danger: #dc2626;
+  /* Chart series colours. */
+  --chart-blue: #2563eb;
+  --chart-purple: #9333ea;
+  --chart-amber: #d97706;
+  --chart-red: #dc2626;
   --radius-card: 16px;
   color-scheme: light;
+}
+
+/*
+ * Dark theme. <html data-theme> is set before first paint by THEME_SCRIPT
+ * (src/lib/theme/theme.ts) from the player's choice or the OS setting.
+ * Primary keeps its light value so white button text stays readable.
+ */
+:root[data-theme="dark"] {
+  --background: #0b1120;
+  --surface: #131c2e;
+  --foreground: #e2e8f0;
+  --muted: #94a3b8;
+  --border: #263247;
+  --primary: #059669;
+  --primary-hover: #047857;
+  --success-surface: #064e3b;
+  --success-text: #6ee7b7;
+  --danger-surface: #450a0a;
+  --danger-text: #fca5a5;
+  --warning-surface: #422006;
+  --warning-text: #fcd34d;
+  --danger: #dc2626;
+  --chart-blue: #60a5fa;
+  --chart-purple: #c084fc;
+  --chart-amber: #fbbf24;
+  --chart-red: #f87171;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -33,6 +67,7 @@
   --color-danger-text: var(--danger-text);
   --color-warning-surface: var(--warning-surface);
   --color-warning-text: var(--warning-text);
+  --color-danger: var(--danger);
   --radius-card: var(--radius-card);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }

@@ -54,6 +54,24 @@ test("signed-in players are sent from guest pages to the app", async ({ page }) 
     await expectNoHorizontalOverflow(page, path);
   }
 
+  // The header and filter bars fit at tablet and desktop widths too.
+  for (const width of [768, 1024, 1280]) {
+    await page.setViewportSize({ width, height: 800 });
+    await expectNoHorizontalOverflow(page, "/wallet");
+  }
+
+  // The theme toggle switches to dark and the choice survives navigation.
+  await page.setViewportSize(PHONE);
+  await page.goto("/dashboard");
+  const html = page.locator("html");
+  const initial = await html.getAttribute("data-theme");
+  const next = initial === "dark" ? "light" : "dark";
+  await page.getByRole("button", { name: `Switch to ${next} mode` }).click();
+  await expect(html).toHaveAttribute("data-theme", next);
+  await page.goto("/wallet");
+  await expect(html).toHaveAttribute("data-theme", next);
+  await expectNoHorizontalOverflow(page, "/wallet");
+
   // Back after signing in returns to the app, not to the sign-in form.
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/login$/);

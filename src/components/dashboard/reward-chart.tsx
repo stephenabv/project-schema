@@ -51,7 +51,12 @@ export function RewardChart({ series, bucket = "day" }: { series: RewardHistoryP
           <Tooltip
             formatter={(value) => [formatCoins(Number(value)), "Virtual rewards"]}
             labelFormatter={(label) => `${formatBucket(bucket, String(label))} (UTC)`}
-            contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }}
+            contentStyle={{
+              borderRadius: 12,
+              border: "1px solid var(--border)",
+              background: "var(--surface)",
+              color: "var(--foreground)",
+            }}
           />
           <Area
             type="monotone"

@@ -4,6 +4,7 @@ import { signOut } from "@/app/(auth)/actions";
 import { AdminLink, MaintenanceNotice, NotificationBell, SuspensionNotice } from "@/components/layout/account-notices";
 import { Logo } from "@/components/layout/logo";
 import { NavLinks } from "@/components/layout/nav-links";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button, ButtonLink } from "@/components/ui/button";
 
 /**
@@ -14,7 +15,7 @@ import { Button, ButtonLink } from "@/components/ui/button";
  */
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
-    <div className="flex min-h-full flex-1 flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0">
+    <div className="flex min-h-full flex-1 flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
       <a
         href="#content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2"
@@ -34,16 +35,16 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
             <Suspense fallback={null}>
               <NotificationBell />
             </Suspense>
-            <ButtonLink href="/profile" variant="ghost" aria-label="Profile" className="px-2.5">
+            <ButtonLink href="/profile" variant="ghost" aria-label="Profile" title="Profile" size="icon">
               <CircleUserRound aria-hidden className="size-4" />
             </ButtonLink>
-            <ButtonLink href="/settings" variant="ghost" aria-label="Settings" className="px-2.5">
+            <ThemeToggle />
+            <ButtonLink href="/settings" variant="ghost" aria-label="Settings" title="Settings" size="icon">
               <Settings aria-hidden className="size-4" />
             </ButtonLink>
             <form action={signOut}>
-              <Button type="submit" variant="ghost" aria-label="Sign out" className="px-2.5">
+              <Button type="submit" variant="ghost" aria-label="Sign out" title="Sign out" size="icon">
                 <LogOut aria-hidden className="size-4" />
-                <span className="hidden md:inline">Sign out</span>
               </Button>
             </form>
           </div>
@@ -58,7 +59,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         </Suspense>
         {children}
       </main>
-      <nav aria-label="Main (mobile)" className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] sm:hidden">
+      <nav aria-label="Main (mobile)" className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
         <NavLinks variant="bottom" />
       </nav>
     </div>

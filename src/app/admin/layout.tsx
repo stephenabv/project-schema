@@ -2,6 +2,7 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { Logo } from "@/components/layout/logo";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { ButtonLink } from "@/components/ui/button";
 
 export const metadata: Metadata = {
@@ -24,10 +25,13 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
               <ShieldCheck aria-hidden className="size-3.5" /> Admin
             </span>
           </div>
-          <ButtonLink href="/dashboard" variant="ghost" aria-label="Back to app" className="shrink-0 px-2.5 sm:px-4">
-            <ArrowLeft aria-hidden className="size-4" />
-            <span className="hidden sm:inline">Back to app</span>
-          </ButtonLink>
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+            <ThemeToggle />
+            <ButtonLink href="/dashboard" variant="ghost" aria-label="Back to app" size="icon" className="sm:px-4">
+              <ArrowLeft aria-hidden className="size-4" />
+              <span className="hidden sm:inline">Back to app</span>
+            </ButtonLink>
+          </div>
         </div>
       </header>
       {/* minmax(0, 1fr) and min-w-0 stop wide children (the scrolling tab row, charts, tables) from widening the page. */}
