@@ -61,7 +61,7 @@ export function GeneratorPanel({ initialStatus }: { initialStatus: GeneratorStat
       switch (outcome.kind) {
         case "success":
           if ("collectedCoins" in outcome.data) {
-            setNotice({ tone: "success", text: `Collected +${formatCoins(outcome.data.collectedCoins)} (virtual, non-redeemable).` });
+            setNotice({ tone: "success", text: `Collected +${formatCoins(outcome.data.collectedCoins)}.` });
           } else {
             setNotice({
               tone: "success",
@@ -173,7 +173,6 @@ export function GeneratorPanel({ initialStatus }: { initialStatus: GeneratorStat
         <Card>
           <CardTitle>Virtual balance</CardTitle>
           <p className="text-2xl font-bold tabular-nums">{formatCoins(status.balanceCoins)}</p>
-          <p className="mt-1 text-xs text-muted">Virtual coins only, no monetary value.</p>
         </Card>
       </div>
     </div>

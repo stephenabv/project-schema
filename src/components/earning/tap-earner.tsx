@@ -100,7 +100,7 @@ export function TapEarner({
           setSessionEarned((total) => total + data.rewardCoins);
           setFloats((list) => [...list.slice(-4), { id: data.transactionId, amount: data.rewardCoins }]);
           setAnnouncement(
-            `Plus ${data.rewardCoins} virtual coins. Balance ${formatCoins(data.balanceCoins)}, virtual and non-redeemable.` +
+            `Plus ${data.rewardCoins} virtual coins. Balance ${formatCoins(data.balanceCoins)}.` +
               (data.unlockedAchievements.length > 0
                 ? ` New badge: ${data.unlockedAchievements.map((a) => a.title).join(", ")}.`
                 : ""),
@@ -201,7 +201,6 @@ export function TapEarner({
         <Card>
           <p className="text-sm text-muted">Earned this session</p>
           <AnimatedNumber value={sessionEarned} format={formatCoins} className="text-2xl font-bold text-primary" />
-          <p className="mt-1 text-xs text-muted">Virtual coins only, no monetary value.</p>
         </Card>
         <Card>
           <p className="text-sm text-muted">Level</p>

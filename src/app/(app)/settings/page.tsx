@@ -39,7 +39,7 @@ async function SettingsContent() {
             Signed in as <span className="font-semibold">{user.email}</span>
           </p>
           <p className="text-xs text-muted">
-            Virtual Earn is a simulation. Coins have no monetary value and cannot be withdrawn, sold or exchanged.
+            Virtual coins can be converted to pesos on the Exchange page while cash-out is open. Payouts are reviewed and sent by hand.
           </p>
         </Card>
         <Card className="flex flex-col gap-3">

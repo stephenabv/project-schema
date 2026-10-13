@@ -29,7 +29,7 @@ export const registerSchema = z.object({
   username: usernameSchema,
   password: passwordSchema,
   acknowledgeVirtual: z.literal("on", {
-    error: "Please confirm you understand coins are virtual and have no monetary value",
+    error: "Please confirm you have read how virtual coins and cash-out work",
   }),
 });
 

@@ -20,7 +20,7 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10">{children}</main>
       <footer className="border-t border-border py-6 text-center text-xs text-muted">
-        Virtual Earn is a simulator. Virtual coins have no monetary value.
+        Virtual Earn: earn virtual coins and convert them to Philippine pesos.
       </footer>
     </div>
   );

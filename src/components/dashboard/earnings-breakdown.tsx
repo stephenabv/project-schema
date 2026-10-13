@@ -55,7 +55,6 @@ export function EarningsBreakdownCard({ breakdown }: { breakdown: EarningsBreakd
           <Item label="Paid out" value={formatPhp(breakdown.paidCentavos)} />
         </dl>
       ) : null}
-      <p className="text-xs text-muted">Virtual coins only, no monetary value.</p>
     </Card>
   );
 }

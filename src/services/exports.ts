@@ -97,8 +97,8 @@ const PAYOUT_COLUMNS: Column<AdminPayout>[] = [
 
 /**
  * CSV exports for the admin console. Data comes from the same ve_admin_*
- * functions as the console (each re-checks the admin role). Amounts are
- * virtual coins with no monetary value.
+ * functions as the console (each re-checks the admin role). Coin amounts are
+ * virtual coins (VC); peso amounts are integer centavos.
  */
 export class ExportService {
   constructor(

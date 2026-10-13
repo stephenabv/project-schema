@@ -1,6 +1,6 @@
 const integer = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 
-/** "1,234 VC". Coins are integers; VC is a virtual, non-redeemable unit. */
+/** "1,234 VC". Coins are integers; VC is the virtual unit players earn. */
 export function formatCoins(amount: number): string {
   return `${integer.format(amount)} VC`;
 }

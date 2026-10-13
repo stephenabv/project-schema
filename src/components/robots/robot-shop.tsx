@@ -212,7 +212,7 @@ export function RobotShop({ initialShop }: { initialShop: RobotShopData }) {
       )}
 
       <p className="text-xs text-muted">
-        Robots earn virtual coins only. They have no monetary value and storage fills after {formatCount(shop.accrualCapHours)} hours
+        Robots earn virtual coins. Their storage fills after {formatCount(shop.accrualCapHours)} hours
         until you collect.
       </p>
     </div>

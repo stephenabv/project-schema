@@ -48,7 +48,7 @@ async function OverviewContent() {
           icon={AlertTriangle}
           note="Replayed idempotency keys"
         />
-        <StatCard label="VC in circulation" value={formatCoins(overview.coinsInCirculation)} icon={CalendarCheck} note="Virtual, non-redeemable" />
+        <StatCard label="VC in circulation" value={formatCoins(overview.coinsInCirculation)} icon={CalendarCheck} note="Across all player wallets" />
         <StatCard
           label="Suspended / admins"
           value={`${formatCount(overview.suspendedPlayers)} / ${formatCount(overview.admins)}`}

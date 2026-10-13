@@ -24,7 +24,7 @@ export function SplashScreen() {
         <div className="splash-screen__content">
           <LogoMark className="splash-screen__mark size-20" />
           <p className="text-xl font-bold tracking-tight">Virtual Earn</p>
-          <p className="text-xs text-muted">Virtual coins only · no monetary value</p>
+          <p className="text-xs text-muted">Tap, earn, cash out</p>
           <span className="splash-screen__bar" />
         </div>
       </div>

@@ -28,7 +28,7 @@ export default function DashboardPage({ searchParams }: PageProps<"/dashboard">)
     <>
       <PageHeader
         title="Dashboard"
-        description="Your simulated earnings at a glance. Every figure comes from recorded activity."
+        description="Your earnings at a glance. Every figure comes from recorded activity."
         action={<ButtonLink href="/earn">Start tapping</ButtonLink>}
       />
       <Suspense fallback={<DashboardSkeleton />}>
@@ -60,7 +60,6 @@ async function DashboardContent({ searchParams }: Pick<PageProps<"/dashboard">, 
           <VirtualBadge />
         </div>
         <p className="text-4xl font-bold tabular-nums">{formatCoins(summary.balanceCoins)}</p>
-        <p className="text-xs text-muted">Simulated coins. No monetary value, cannot be withdrawn or exchanged.</p>
       </Card>
 
       {config.flags.dailyBonus ? <DailyBonusCard initialStatus={bonus} /> : null}

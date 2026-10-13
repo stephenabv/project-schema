@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Virtual Earn",
     short_name: "Virtual Earn",
-    description: "A tap-to-earn simulator. Coins are virtual, have no monetary value and cannot be redeemed.",
+    description: "Earn virtual coins and convert them to Philippine pesos.",
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",

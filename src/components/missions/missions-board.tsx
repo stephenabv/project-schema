@@ -185,7 +185,7 @@ function formatReset(iso: string): string {
 }
 
 function claimMessage(mission: Mission, unlocked: UnlockedAchievement[]): string {
-  const base = `Claimed ${mission.title}: +${formatCoins(mission.rewardCoins)} (virtual, non-redeemable).`;
+  const base = `Claimed ${mission.title}: +${formatCoins(mission.rewardCoins)}.`;
   if (unlocked.length === 0) return base;
   return `${base} New badge${unlocked.length > 1 ? "s" : ""}: ${unlocked.map((a) => a.title).join(", ")}.`;
 }

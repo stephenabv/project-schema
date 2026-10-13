@@ -105,7 +105,7 @@ export function RobotGenerator({ initial }: { initial: RobotGeneratorData }) {
         const { collectedCoins, robotsPaid } = outcome.data;
         setNotice({
           tone: "success",
-          text: `Collected +${formatCoins(collectedCoins)} from ${formatCount(robotsPaid)} robot${robotsPaid === 1 ? "" : "s"} (virtual, non-redeemable).`,
+          text: `Collected +${formatCoins(collectedCoins)} from ${formatCount(robotsPaid)} robot${robotsPaid === 1 ? "" : "s"}.`,
         });
         await reload();
       } else {
@@ -276,7 +276,7 @@ export function RobotGenerator({ initial }: { initial: RobotGeneratorData }) {
 
       <p className="text-xs text-muted">
         Each robot stores up to {formatCount(data.accrualCapHours)} hours of earnings. Up to {formatCount(data.maxActive)} robots can work
-        at once. All earnings are virtual coins with no monetary value.
+        at once.
       </p>
     </div>
   );

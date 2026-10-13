@@ -1,18 +1,15 @@
 # Virtual Earn
 
-A responsive, gamified **earning simulator**. Users tap a button, the server records a virtual reward, and the
-dashboard shows their running virtual earnings.
+A responsive, gamified **tap-to-earn app**. Players earn virtual coins (VC) by tapping, completing missions,
+claiming daily bonuses and running robots, then convert VC to Philippine pesos and request a payout.
 
-> **Product disclosure.** All balances and rewards are virtual coins (VC). They are non-redeemable, have no
-> monetary value, and cannot be deposited, withdrawn, cashed out or exchanged for money. The app offers no
-> investments and no returns of any kind. The disclosure appears on the landing page, during registration, in the
-> wallet, and next to every balance.
->
-> The release adds a VC-to-PHP **conversion and payout workflow** for a possible future, legally cleared program.
-> It is **switched off by default**; while it is off players only see that conversion is not available, and the
-> disclosures above stay in force. There is no payment provider: an admin sends each payout by hand and records the
-> payment reference before it can be marked paid. Do not open it until real-money payouts are legally cleared
-> (licensing, KYC/AML checks, tax and updated terms).
+> **How coins and cash-out work.** All rewards are virtual coins (VC). While cash-out is open, players convert VC
+> to pesos at the posted exchange rate (the rate is snapshotted on each request) and request a payout to an
+> admin-configured method. There is no payment provider: an admin reviews each request, sends the payout by hand
+> and records the payment reference before it can be marked paid. Minimums, limits and processing times apply.
+> The notice appears on the landing page, during registration, in the wallet and on the cash-out pages. An admin
+> can pause cash-out at any time from `/admin/exchange`. Operators are responsible for the licensing, KYC/AML, tax
+> and terms that real-money payouts require.
 
 Stack: Next.js 16 (App Router, Cache Components) · React 19 · TypeScript (strict) · Tailwind CSS 4 · Supabase
 (Auth + PostgreSQL) · Zod · Recharts · Vitest · Playwright · Vercel.

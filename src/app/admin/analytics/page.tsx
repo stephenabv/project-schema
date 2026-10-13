@@ -21,7 +21,7 @@ const rangeSchema = z.coerce.number().pipe(z.union(RANGES.map((n) => z.literal(n
 export default function AnalyticsPage({ searchParams }: PageProps<"/admin/analytics">) {
   return (
     <>
-      <PageHeader title="Analytics" description="Daily activity by UTC day. Coins are virtual and have no monetary value." />
+      <PageHeader title="Analytics" description="Daily activity by UTC day." />
       <Suspense fallback={<Skeleton className="h-[640px]" />}>
         <AnalyticsContent searchParams={searchParams} />
       </Suspense>

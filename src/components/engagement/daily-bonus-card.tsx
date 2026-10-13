@@ -41,7 +41,7 @@ export function DailyBonusCard({ initialStatus }: { initialStatus: DailyBonusSta
           setNotice({
             tone: "success",
             text:
-              `Claimed +${formatCoins(data.rewardCoins)} (virtual, non-redeemable). Day ${data.currentStreak} streak.` +
+              `Claimed +${formatCoins(data.rewardCoins)}. Day ${data.currentStreak} streak.` +
               (badges.length > 0 ? ` New badge: ${badges.join(", ")}.` : ""),
           });
           router.refresh();
