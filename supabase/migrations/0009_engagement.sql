@@ -139,7 +139,8 @@ create policy "ve_notifications_select_own"
   on public.ve_notifications for select to authenticated
   using ((select auth.uid()) = user_id);
 
--- Adds a notification and keeps only the newest 100 per player.
+-- Adds a notification. Volume is naturally bounded (badges, level-ups, shop
+-- items and admin actions), and reads are paged, so rows are kept as history.
 create or replace function ve_private.notify(p_user_id uuid, p_kind text, p_title text, p_body text, p_link text)
 returns void
 language plpgsql
@@ -149,15 +150,6 @@ as $$
 begin
   insert into public.ve_notifications (user_id, kind, title, body, link)
   values (p_user_id, p_kind, left(p_title, 120), left(coalesce(p_body, ''), 280), p_link);
-
-  delete from public.ve_notifications n
-  where n.user_id = p_user_id
-    and n.id in (
-      select old.id from public.ve_notifications old
-      where old.user_id = p_user_id
-      order by old.created_at desc, old.id desc
-      offset 100
-    );
 end;
 $$;
 

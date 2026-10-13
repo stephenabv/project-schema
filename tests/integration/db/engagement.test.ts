@@ -292,13 +292,18 @@ describe.skipIf(!hasDatabase)("engagement: daily bonus, leaderboard, shop, notif
       );
     });
 
-    it("keeps at most 100 notifications per player", async () => {
+    it("returns only the newest notifications up to the requested limit", async () => {
       const user = await createUser(db.pool);
-      for (let i = 0; i < 105; i += 1) {
+      for (let i = 0; i < 35; i += 1) {
         await db.pool.query("select ve_private.notify($1, 'account', $2, '', null)", [user, `n${i}`]);
       }
-      const { rows } = await db.pool.query("select count(*)::int as count from public.ve_notifications where user_id = $1", [user]);
-      expect(rows[0].count).toBe(100);
+      const list = (await call(db.pool, user, "select public.ve_list_notifications(30) as result")) as {
+        items: { title: string }[];
+        unread: number;
+      };
+      expect(list.items).toHaveLength(30);
+      expect(list.unread).toBe(35);
+      await expect(rejectsWith(call(db.pool, user, "select public.ve_list_notifications(101) as result"))).resolves.toBe("22023");
     });
   });
 });

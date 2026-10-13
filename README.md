@@ -55,7 +55,7 @@ equipped cosmetics, and skips suspended players and anyone who opted out in Sett
 only (tap button skins, avatar frames, titles), which never change rewards: `purchase_item` checks price, level and
 balance in one transaction and is idempotent, writing a `shop_purchase` ledger entry. Database triggers write in-app
 notifications for badges, level-ups, purchases and admin actions on your account (suspension, restore, wallet
-adjustments), keeping the newest 100 per player.
+adjustments), kept as history and read newest first.
 
 Delivery plan for the rest of the blueprint: Phase 4 idle generator, advanced analytics, scheduled publishing,
 feature flags and maintenance mode, exports.
