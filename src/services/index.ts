@@ -1,10 +1,18 @@
 import "server-only";
 import type { AppSupabaseClient } from "@/lib/supabase/server";
+import { AccountService } from "./account";
+import { AdminService } from "./admin";
+import { BonusService } from "./bonus";
+import { ConfigService } from "./config";
 import { DashboardService } from "./dashboard";
+import { GeneratorService } from "./generator";
+import { LeaderboardService } from "./leaderboard";
 import { MissionService } from "./missions";
+import { NotificationService } from "./notifications";
 import { ProfileService } from "./profile";
 import { ProgressionService } from "./progression";
 import { RewardService } from "./rewards";
+import { ShopService } from "./shop";
 import { WalletService } from "./wallet";
 
 export interface Services {
@@ -14,6 +22,14 @@ export interface Services {
   missions: MissionService;
   progression: ProgressionService;
   profile: ProfileService;
+  account: AccountService;
+  admin: AdminService;
+  bonus: BonusService;
+  leaderboard: LeaderboardService;
+  shop: ShopService;
+  notifications: NotificationService;
+  generator: GeneratorService;
+  config: ConfigService;
 }
 
 /** Composes the services around one user-scoped (RLS) Supabase client. */
@@ -25,7 +41,30 @@ export function createServices(db: AppSupabaseClient): Services {
     missions: new MissionService(db),
     progression: new ProgressionService(db),
     profile: new ProfileService(db),
+    account: new AccountService(db),
+    admin: new AdminService(db),
+    bonus: new BonusService(db),
+    leaderboard: new LeaderboardService(db),
+    shop: new ShopService(db),
+    notifications: new NotificationService(db),
+    generator: new GeneratorService(db),
+    config: new ConfigService(db),
   };
 }
 
-export { DashboardService, MissionService, ProfileService, ProgressionService, RewardService, WalletService };
+export {
+  AccountService,
+  AdminService,
+  BonusService,
+  ConfigService,
+  DashboardService,
+  GeneratorService,
+  LeaderboardService,
+  MissionService,
+  NotificationService,
+  ProfileService,
+  ProgressionService,
+  RewardService,
+  ShopService,
+  WalletService,
+};

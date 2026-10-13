@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { VirtualBadge } from "@/components/ui/virtual-badge";
 import { TapClient } from "@/lib/api/tap-client";
+import { tapSkinClass } from "@/lib/cosmetics/styles";
 import { formatCoins, formatCount } from "@/lib/formatting/coins";
 import type { TapPolicy, UnlockedAchievement } from "@/types/api";
 import { AnimatedNumber } from "./animated-number";
@@ -17,6 +18,8 @@ interface TapEarnerProps {
   initialXp: number;
   initialLevel: number;
   policy: TapPolicy;
+  /** Equipped tap skin style key from the shop, if any. */
+  tapSkin?: string | null;
 }
 
 type Status =
@@ -36,7 +39,14 @@ interface FloatingReward {
  * The core interaction: tap, wait for the server to accept, then show the
  * new server-confirmed balance. The browser never decides the amount.
  */
-export function TapEarner({ initialBalance, initialTapsToday, initialXp, initialLevel, policy }: TapEarnerProps) {
+export function TapEarner({
+  initialBalance,
+  initialTapsToday,
+  initialXp,
+  initialLevel,
+  policy,
+  tapSkin = null,
+}: TapEarnerProps) {
   const client = useMemo(() => new TapClient(), []);
   const [balance, setBalance] = useState(initialBalance);
   const [tapsToday, setTapsToday] = useState(initialTapsToday);
@@ -134,7 +144,7 @@ export function TapEarner({ initialBalance, initialTapsToday, initialXp, initial
             onClick={handleTap}
             aria-disabled={disabled}
             aria-describedby="tap-help"
-            className="flex size-44 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-colors hover:bg-primary-hover aria-disabled:cursor-not-allowed aria-disabled:opacity-60 sm:size-52"
+            className={`flex size-44 items-center justify-center rounded-full text-white shadow-lg transition-colors aria-disabled:cursor-not-allowed aria-disabled:opacity-60 sm:size-52 ${tapSkinClass(tapSkin)}`}
           >
             <span key={pulseKey} className="animate-tap-pulse flex flex-col items-center gap-2">
               <Hand aria-hidden className="size-10" />

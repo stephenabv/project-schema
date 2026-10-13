@@ -18,7 +18,13 @@ export const progressDeltaSchema = z.object({
   unlockedAchievements: z.array(unlockedAchievementSchema),
 });
 
-export const ACHIEVEMENT_METRICS = ["total_taps", "total_coins_earned", "missions_completed", "level"] as const;
+export const ACHIEVEMENT_METRICS = [
+  "total_taps",
+  "total_coins_earned",
+  "missions_completed",
+  "level",
+  "longest_streak",
+] as const;
 
 export const achievementSchema = z.object({
   slug: z.string(),

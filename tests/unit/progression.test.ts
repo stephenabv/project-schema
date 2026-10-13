@@ -79,7 +79,7 @@ describe("ProgressionService", () => {
 });
 
 describe("ProfileService", () => {
-  const row = { id: USER, username: "stephen", avatar_key: "rocket", created_at: "2026-10-01T00:00:00+00:00" };
+  const row = { id: USER, username: "stephen", avatar_key: "rocket", created_at: "2026-10-01T00:00:00+00:00", leaderboard_opt_out: false };
 
   it("reads only the caller's own profile columns", async () => {
     const fake = createFakeSupabase({ table: { data: row, error: null } });
@@ -88,6 +88,7 @@ describe("ProfileService", () => {
       username: "stephen",
       avatarKey: "rocket",
       createdAt: row.created_at,
+      leaderboardOptOut: false,
     });
     expect(fake.from).toHaveBeenCalledWith("player_profiles");
     expect(fake.chain.eq).toHaveBeenCalledWith("id", USER);
@@ -99,13 +100,21 @@ describe("ProfileService", () => {
     expect(fake.chain.update).toHaveBeenCalledWith({ username: "stephen", avatar_key: "rocket" });
   });
 
+  it("updates only the leaderboard opt-out flag", async () => {
+    const fake = createFakeSupabase({ table: { data: { ...row, leaderboard_opt_out: true }, error: null } });
+    const profile = await new ProfileService(fake.client).setLeaderboardOptOut(USER, true);
+    expect(profile.leaderboardOptOut).toBe(true);
+    expect(fake.chain.update).toHaveBeenCalledWith({ leaderboard_opt_out: true });
+    expect(fake.chain.eq).toHaveBeenCalledWith("id", USER);
+  });
+
   it("reports a taken username as a conflict", async () => {
     const fake = createFakeSupabase({ table: { data: null, error: { code: "23505" } } });
     const error = await new ProfileService(fake.client)
       .update(USER, { username: "taken", avatarKey: "coins" })
       .catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ConflictError);
-    expect((error as ConflictError).code).toBe("USERNAME_TAKEN");
+    expect((error as ConflictError).code).toBe("ALREADY_EXISTS");
   });
 
   it("treats a missing row as not found", async () => {

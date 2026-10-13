@@ -106,6 +106,8 @@ export interface Mission {
   periodEndsAt: string | null;
   claimed: boolean;
   claimedAt: string | null;
+  /** End of a scheduled mission's window, if it has one. */
+  availableUntil: string | null;
 }
 
 export interface MissionsResponse extends VirtualAmount {
@@ -122,7 +124,7 @@ export interface ClaimResponse extends VirtualAmount, ProgressDelta {
   balanceCoins: number;
 }
 
-export type AchievementMetric = "total_taps" | "total_coins_earned" | "missions_completed" | "level";
+export type AchievementMetric = "total_taps" | "total_coins_earned" | "missions_completed" | "level" | "longest_streak";
 
 export interface Achievement {
   slug: string;
@@ -172,8 +174,16 @@ export const API_ERROR_CODES = [
   "IDEMPOTENCY_CONFLICT",
   "ALREADY_CLAIMED",
   "MISSION_INCOMPLETE",
-  "USERNAME_TAKEN",
+  "ALREADY_EXISTS",
+  "INSUFFICIENT_BALANCE",
+  "ACTION_NOT_ALLOWED",
+  "LEVEL_REQUIRED",
+  "ALREADY_OWNED",
+  "NOTHING_TO_COLLECT",
+  "FEATURE_DISABLED",
+  "MAINTENANCE_MODE",
   "FORBIDDEN",
+  "ACCOUNT_SUSPENDED",
   "INTERNAL_ERROR",
 ] as const;
 

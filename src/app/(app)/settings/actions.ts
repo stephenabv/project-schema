@@ -1,10 +1,13 @@
 "use server";
 
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/lib/auth/form-state";
 import { requireUser } from "@/lib/auth/require-user";
+import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { changePasswordSchema, fieldErrorsOf } from "@/lib/validation/auth";
+import { ProfileService } from "@/services/profile";
 
 function text(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -49,4 +52,20 @@ export async function signOutEverywhere(): Promise<void> {
   const { error } = await supabase.auth.signOut({ scope: "global" });
   if (error) logger.warn("global_sign_out_failed", { code: error.code ?? "unknown" });
   redirect("/login");
+}
+
+/** Hides or shows the player on public leaderboards (form field `optOut` = "true" | "false"). */
+export async function setLeaderboardVisibility(formData: FormData): Promise<void> {
+  const optOut = text(formData, "optOut");
+  if (optOut !== "true" && optOut !== "false") return;
+
+  const { supabase, user } = await requireUser();
+  if (!user) redirect("/login?next=/settings");
+
+  try {
+    await new ProfileService(supabase).setLeaderboardOptOut(user.id, optOut === "true");
+  } catch (error) {
+    logger.warn("leaderboard_opt_out_failed", { code: error instanceof AppError ? error.code : "unknown" });
+  }
+  refresh();
 }

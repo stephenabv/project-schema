@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getSessionOrRedirect } from "@/lib/auth/session";
 import { DashboardService } from "@/services/dashboard";
 import { ProgressionService } from "@/services/progression";
+import { ShopService } from "@/services/shop";
 
 export const metadata: Metadata = { title: "Earn" };
 
@@ -25,9 +26,10 @@ export default function EarnPage() {
 
 async function EarnContent() {
   const { supabase } = await getSessionOrRedirect("/earn");
-  const [summary, progression] = await Promise.all([
+  const [summary, progression, cosmetics] = await Promise.all([
     new DashboardService(supabase).getSummary(),
     new ProgressionService(supabase).get(),
+    new ShopService(supabase).equipped(),
   ]);
 
   return (
@@ -37,6 +39,7 @@ async function EarnContent() {
       initialXp={progression.xpTotal}
       initialLevel={progression.level}
       policy={summary.policy}
+      tapSkin={cosmetics.tapSkin}
     />
   );
 }

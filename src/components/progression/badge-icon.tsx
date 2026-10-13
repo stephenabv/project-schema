@@ -12,9 +12,10 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
+import type { BadgeIconKey } from "@/lib/progression/badge-icons";
 
 /** Icon keys stored on achievements map to a fixed set of icons; unknown keys fall back to Award. */
-const ICONS: Record<string, LucideIcon> = {
+const ICONS: Record<BadgeIconKey, LucideIcon> = {
   award: Award,
   coins: Coins,
   crown: Crown,
@@ -28,9 +29,7 @@ const ICONS: Record<string, LucideIcon> = {
   zap: Zap,
 };
 
-export const BADGE_ICON_KEYS = Object.keys(ICONS);
-
 export function BadgeIcon({ icon, className = "size-5" }: { icon: string; className?: string }) {
-  const Icon = ICONS[icon] ?? Award;
+  const Icon = (ICONS as Record<string, LucideIcon | undefined>)[icon] ?? Award;
   return <Icon aria-hidden className={className} />;
 }

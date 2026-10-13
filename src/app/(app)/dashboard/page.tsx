@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { RangeTabs } from "@/components/dashboard/range-tabs";
 import { RewardChart } from "@/components/dashboard/reward-chart";
+import { DailyBonusCard } from "@/components/engagement/daily-bonus-card";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
 import { LevelCard } from "@/components/progression/level-card";
@@ -11,8 +12,10 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { LoadingCard, Skeleton } from "@/components/ui/skeleton";
 import { VirtualBadge } from "@/components/ui/virtual-badge";
 import { getSessionOrRedirect } from "@/lib/auth/session";
+import { getAppConfig } from "@/lib/config/app-config";
 import { formatCoins, formatCount } from "@/lib/formatting/coins";
 import { REWARD_RANGES, rewardRangeSchema } from "@/lib/validation/progression";
+import { BonusService } from "@/services/bonus";
 import { DashboardService } from "@/services/dashboard";
 import { ProgressionService } from "@/services/progression";
 
@@ -37,10 +40,12 @@ async function DashboardContent({ searchParams }: Pick<PageProps<"/dashboard">, 
   const { supabase } = await getSessionOrRedirect("/dashboard");
   const range = rewardRangeSchema.parse((await searchParams).range);
   const progressionService = new ProgressionService(supabase);
-  const [summary, progression, series] = await Promise.all([
+  const [summary, progression, series, bonus, config] = await Promise.all([
     new DashboardService(supabase).getSummary(),
     progressionService.get(),
     progressionService.getRewardHistory(range),
+    new BonusService(supabase).status(),
+    getAppConfig(),
   ]);
   const { bucket, label } = REWARD_RANGES[range];
 
@@ -54,6 +59,8 @@ async function DashboardContent({ searchParams }: Pick<PageProps<"/dashboard">, 
         <p className="text-4xl font-bold tabular-nums">{formatCoins(summary.balanceCoins)}</p>
         <p className="text-xs text-muted">Simulated coins. No monetary value, cannot be withdrawn or exchanged.</p>
       </Card>
+
+      {config.flags.dailyBonus ? <DailyBonusCard initialStatus={bonus} /> : null}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard label="Total earned" value={formatCoins(summary.totalEarnedCoins)} icon={TrendingUp} />

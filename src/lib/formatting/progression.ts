@@ -6,6 +6,7 @@ const METRIC_UNITS: Record<AchievementMetric, (n: number) => string> = {
   total_coins_earned: (n) => formatCoins(n),
   missions_completed: (n) => `${formatCount(n)} missions`,
   level: (n) => `level ${formatCount(n)}`,
+  longest_streak: (n) => `${formatCount(n)}-day streak`,
 };
 
 /** "40 / 100 taps", "Level 3 / level 5". */

@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { signOutEverywhere } from "@/app/(app)/settings/actions";
+import { setLeaderboardVisibility, signOutEverywhere } from "@/app/(app)/settings/actions";
 import { PageHeader } from "@/components/layout/page-header";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSessionOrRedirect } from "@/lib/auth/session";
+import { ProfileService } from "@/services/profile";
 
 export const metadata: Metadata = { title: "Settings" };
 
 export default function SettingsPage() {
   return (
     <>
-      <PageHeader title="Settings" description="Manage your account security." />
+      <PageHeader title="Settings" description="Manage your account security and privacy." />
       <Suspense fallback={<Skeleton className="h-96" />}>
         <SettingsContent />
       </Suspense>
@@ -22,7 +23,8 @@ export default function SettingsPage() {
 }
 
 async function SettingsContent() {
-  const { user } = await getSessionOrRedirect("/settings");
+  const { supabase, user } = await getSessionOrRedirect("/settings");
+  const profile = await new ProfileService(supabase).get(user.id);
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -39,6 +41,20 @@ async function SettingsContent() {
           <p className="text-xs text-muted">
             Virtual Earn is a simulation. Coins have no monetary value and cannot be withdrawn, sold or exchanged.
           </p>
+        </Card>
+        <Card className="flex flex-col gap-3">
+          <CardTitle>Leaderboard privacy</CardTitle>
+          <p className="text-sm text-muted">
+            {profile.leaderboardOptOut
+              ? "You are hidden from leaderboards. Other players cannot see your username or score."
+              : "Your username, level, score and cosmetics appear on leaderboards. Nothing else is shown."}
+          </p>
+          <form action={setLeaderboardVisibility}>
+            <input type="hidden" name="optOut" value={profile.leaderboardOptOut ? "false" : "true"} />
+            <Button type="submit" variant="secondary">
+              {profile.leaderboardOptOut ? "Show me on leaderboards" : "Hide me from leaderboards"}
+            </Button>
+          </form>
         </Card>
         <Card className="flex flex-col gap-3">
           <CardTitle>Sessions</CardTitle>

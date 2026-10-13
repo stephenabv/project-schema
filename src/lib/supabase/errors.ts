@@ -1,9 +1,12 @@
 import {
+  AccountSuspendedError,
   AppError,
   AuthenticationError,
   ConflictError,
+  FeatureDisabledError,
   ForbiddenError,
   InternalError,
+  MaintenanceError,
   NotFoundError,
   RateLimitError,
   ValidationError,
@@ -41,13 +44,32 @@ export function toAppError(error: DatabaseError, operation: string): AppError {
     case "VE003":
       return new ConflictError("This request key was already used for a different action");
     case "VE004":
-      return new ConflictError("Mission already claimed for this period", "ALREADY_CLAIMED");
+      return new ConflictError("Already claimed for this period", "ALREADY_CLAIMED");
     case "VE005":
       return new ConflictError("Mission objective not complete yet", "MISSION_INCOMPLETE");
+    case "VE006":
+      return new AccountSuspendedError();
+    case "VE007":
+      return new MaintenanceError();
+    case "VE014":
+      return new FeatureDisabledError();
+    case "VE015":
+      return new ConflictError("Nothing to collect yet. Check back soon.", "NOTHING_TO_COLLECT");
+    case "VE008":
+      return new ConflictError("Not enough virtual coins for that", "INSUFFICIENT_BALANCE");
+    case "VE009":
+      return new ConflictError("Reach the required level to unlock this item", "LEVEL_REQUIRED");
     case "VE010":
       return new NotFoundError("This mission is not available");
-    case "23505": // unique_violation (for example a taken username)
-      return new ConflictError("That value is already taken", "USERNAME_TAKEN");
+    case "VE011":
+      return new ConflictError("That action is not allowed for this account or record", "ACTION_NOT_ALLOWED");
+    case "VE012":
+      return new NotFoundError("Record not found");
+    case "VE013":
+      return new ConflictError("You already own this item", "ALREADY_OWNED");
+    case "23505": // unique_violation (a taken username or slug)
+      return new ConflictError("That value is already taken", "ALREADY_EXISTS");
+    case "23502": // not_null_violation
     case "23514": // check_violation
       return new ValidationError("The request contained invalid values");
     case "42501":

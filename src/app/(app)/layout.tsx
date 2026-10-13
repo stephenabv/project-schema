@@ -1,13 +1,16 @@
 import { CircleUserRound, LogOut, Settings } from "lucide-react";
+import { Suspense } from "react";
 import { signOut } from "@/app/(auth)/actions";
+import { AdminLink, MaintenanceNotice, NotificationBell, SuspensionNotice } from "@/components/layout/account-notices";
 import { Logo } from "@/components/layout/logo";
 import { NavLinks } from "@/components/layout/nav-links";
 import { Button, ButtonLink } from "@/components/ui/button";
 
 /**
- * Signed-in area shell. It holds no user data so it prerenders; each page
- * verifies the session itself inside a Suspense boundary (the proxy redirect
- * is only a convenience, not the authorization check).
+ * Signed-in area shell. Its static parts prerender; the admin link and the
+ * suspension notice stream in. Each page verifies the session itself inside a
+ * Suspense boundary (the proxy redirect is only a convenience, not the
+ * authorization check).
  */
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
@@ -25,6 +28,12 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
             <NavLinks variant="top" />
           </nav>
           <div className="flex items-center gap-1">
+            <Suspense fallback={null}>
+              <AdminLink />
+            </Suspense>
+            <Suspense fallback={null}>
+              <NotificationBell />
+            </Suspense>
             <ButtonLink href="/profile" variant="ghost" aria-label="Profile" className="px-2.5">
               <CircleUserRound aria-hidden className="size-4" />
             </ButtonLink>
@@ -41,6 +50,12 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         </div>
       </header>
       <main id="content" className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
+        <Suspense fallback={null}>
+          <MaintenanceNotice />
+        </Suspense>
+        <Suspense fallback={null}>
+          <SuspensionNotice />
+        </Suspense>
         {children}
       </main>
       <nav aria-label="Main (mobile)" className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface sm:hidden">

@@ -11,6 +11,11 @@ const PROTECTED_PREFIXES = [
   "/wallet",
   "/profile",
   "/settings",
+  "/leaderboard",
+  "/shop",
+  "/notifications",
+  "/generator",
+  "/admin",
 ];
 const GUEST_ONLY_PATHS = ["/login", "/register"];
 

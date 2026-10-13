@@ -25,6 +25,7 @@ export const missionSchema = z.object({
   periodEndsAt: z.string().nullable(),
   claimed: z.boolean(),
   claimedAt: z.string().nullable(),
+  availableUntil: z.string().nullable().default(null),
 });
 
 export const claimResultSchema = progressDeltaSchema.extend({
