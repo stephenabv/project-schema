@@ -16,7 +16,7 @@ export default function ShopPage() {
     <>
       <PageHeader
         title="Cosmetic shop"
-        description="Spend virtual coins on looks. Items are cosmetic only: they never change rewards and have no monetary value."
+        description="Spend virtual coins on looks. Items are cosmetic only: they never change rewards."
       />
       <Suspense fallback={<Skeleton className="h-96" />}>
         <ShopContent />

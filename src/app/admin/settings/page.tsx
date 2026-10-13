@@ -44,8 +44,7 @@ async function SettingsContent() {
                     ? ` by ${settings.tapPolicyUpdatedBy}`
                     : ""
                 }.`
-              : "Using the default policy."}{" "}
-            Rewards are virtual coins with no monetary value.
+              : "Using the default policy."}
           </p>
         </div>
         <TapPolicyForm policy={settings.tapPolicy} />

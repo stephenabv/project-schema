@@ -1,4 +1,4 @@
-import { ChartLine, Hand, ShieldCheck } from "lucide-react";
+import { ChartLine, Hand, Wallet } from "lucide-react";
 import { SignedInRedirect } from "@/components/auth/signed-in-redirect";
 import { Disclosure } from "@/components/layout/disclosure";
 import { ButtonLink } from "@/components/ui/button";
@@ -8,7 +8,7 @@ const FEATURES = [
   {
     icon: Hand,
     title: "Tap to earn",
-    body: "Each accepted tap adds 10 virtual coins. The server decides every reward, so the numbers are consistent.",
+    body: "Every accepted tap adds virtual coins. The server decides every reward, so the numbers are consistent.",
   },
   {
     icon: ChartLine,
@@ -16,9 +16,9 @@ const FEATURES = [
     body: "Your running balance, today's rewards and a daily chart update from recorded activity.",
   },
   {
-    icon: ShieldCheck,
-    title: "Simulated, by design",
-    body: "No deposits, no withdrawals, no real money. It is a game about the feeling of progress.",
+    icon: Wallet,
+    title: "Cash out to pesos",
+    body: "Convert virtual coins to Philippine pesos at the posted rate and request a payout. Each payout is reviewed and sent by hand.",
   },
 ];
 
@@ -28,17 +28,17 @@ export default function LandingPage() {
       <SignedInRedirect />
       <section className="flex flex-col items-start gap-5">
         <span className="rounded-full bg-success-surface px-3 py-1 text-xs font-medium text-success-text">
-          Earning simulator · virtual coins only
+          Tap · earn · cash out
         </span>
         <h1 className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">
-          Tap a few times. Watch your virtual earnings run.
+          Tap, earn virtual coins, and cash out to pesos.
         </h1>
         <p className="max-w-xl text-lg text-muted">
-          Virtual Earn is a gamified simulator. Complete simple actions, collect virtual coins, and track your
-          progress on a clean dashboard.
+          Complete simple actions, run robots, and collect virtual coins. Track your progress on a clean dashboard and
+          convert your coins to pesos when you are ready.
         </p>
         <div className="flex flex-wrap gap-3">
-          <ButtonLink href="/register">Start simulating</ButtonLink>
+          <ButtonLink href="/register">Start earning</ButtonLink>
           <ButtonLink href="/login" variant="secondary">
             I have an account
           </ButtonLink>

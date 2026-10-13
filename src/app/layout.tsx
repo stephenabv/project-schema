@@ -5,11 +5,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Virtual Earn: a tap-to-earn simulator",
+    default: "Virtual Earn: tap, earn and cash out",
     template: "%s | Virtual Earn",
   },
   description:
-    "A gamified earning simulator. All balances are virtual coins with no monetary value and cannot be redeemed.",
+    "Earn virtual coins by tapping, completing missions and running robots, then convert them to Philippine pesos.",
   applicationName: "Virtual Earn",
   appleWebApp: { capable: true, title: "Virtual Earn", statusBarStyle: "default" },
 };

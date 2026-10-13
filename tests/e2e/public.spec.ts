@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("public area", () => {
-  test("landing page carries the virtual currency disclosure", async ({ page }) => {
+  test("landing page explains how coins and cash-out work", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("virtual earnings");
-    await expect(page.getByRole("complementary", { name: "Virtual currency disclosure" })).toContainText(
-      "no monetary value",
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("cash out to pesos");
+    await expect(page.getByRole("complementary", { name: "How virtual coins work" })).toContainText(
+      "Philippine pesos",
     );
   });
 

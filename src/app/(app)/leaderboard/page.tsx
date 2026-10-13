@@ -79,7 +79,7 @@ async function LeaderboardContent({ searchParams }: Pick<PageProps<"/leaderboard
       </Card>
       {board === "weekly" ? (
         <p className="text-xs text-muted">
-          Week started {formatShortDate(leaderboard.weekStartsOn)} (Monday, UTC). Virtual coins have no monetary value.
+          Week started {formatShortDate(leaderboard.weekStartsOn)} (Monday, UTC).
         </p>
       ) : null}
     </div>

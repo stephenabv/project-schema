@@ -11,7 +11,7 @@ export default function RegisterPage() {
     <>
       <SignedInRedirect />
       <AuthCard
-        title="Create your simulator account"
+        title="Create your account"
         footer={
           <>
             Already registered?{" "}
