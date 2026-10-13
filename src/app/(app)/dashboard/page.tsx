@@ -28,7 +28,7 @@ export default function DashboardPage({ searchParams }: PageProps<"/dashboard">)
     <>
       <PageHeader
         title="Dashboard"
-        description="Your earnings at a glance. Every figure comes from recorded activity."
+        description="Your earnings at a glance."
         action={<ButtonLink href="/earn">Start tapping</ButtonLink>}
       />
       <Suspense fallback={<DashboardSkeleton />}>

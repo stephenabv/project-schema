@@ -8,7 +8,7 @@ const FEATURES = [
   {
     icon: Hand,
     title: "Tap to earn",
-    body: "Every accepted tap adds virtual coins. The server decides every reward, so the numbers are consistent.",
+    body: "Every tap adds virtual coins to your balance right away.",
   },
   {
     icon: ChartLine,

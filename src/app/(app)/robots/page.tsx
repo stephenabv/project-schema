@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FeatureOff } from "@/components/layout/feature-off";
 import { PageHeader } from "@/components/layout/page-header";
+import { ShopSwitcher } from "@/components/layout/shop-switcher";
 import { RobotShop } from "@/components/robots/robot-shop";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSessionOrRedirect } from "@/lib/auth/session";
@@ -17,6 +18,7 @@ export default function RobotsPage() {
         title="Robot Shop"
         description="Hire robot workers that earn virtual coins every minute. Higher tiers cost more and earn more."
       />
+      <ShopSwitcher current="/robots" />
       <Suspense fallback={<Skeleton className="h-96" />}>
         <RobotShopContent />
       </Suspense>

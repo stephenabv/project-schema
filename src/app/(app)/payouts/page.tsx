@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Payouts" };
 export default function PayoutsPage() {
   return (
     <>
-      <PageHeader title="Payouts" description="Request a payout of converted pesos. Every request is reviewed and paid by hand." />
+      <PageHeader title="Payouts" description="Request your pesos. We review every request and send it to you." />
       <div className="flex flex-col gap-4">
         <Disclosure compact />
         <Suspense fallback={<Skeleton className="h-96" />}>

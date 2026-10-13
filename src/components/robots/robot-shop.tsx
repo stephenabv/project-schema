@@ -212,8 +212,8 @@ export function RobotShop({ initialShop }: { initialShop: RobotShopData }) {
       )}
 
       <p className="text-xs text-muted">
-        Robots earn virtual coins. Their storage fills after {formatCount(shop.accrualCapHours)} hours
-        until you collect.
+        Each robot holds up to {formatCount(shop.accrualCapHours)} hours of earnings, so collect often to keep
+        them working.
       </p>
     </div>
   );

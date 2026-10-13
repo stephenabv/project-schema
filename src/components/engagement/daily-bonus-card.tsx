@@ -75,7 +75,7 @@ export function DailyBonusCard({ initialStatus }: { initialStatus: DailyBonusSta
         </span>
       </div>
       <p className="text-sm text-muted">
-        Check in every UTC day to grow your streak. Longer streaks pay more virtual coins (best:{" "}
+        Check in every day to grow your streak. Longer streaks pay more virtual coins (best:{" "}
         {formatCount(status.longestStreak)} days).
       </p>
       <div className="flex flex-wrap items-center justify-between gap-2">

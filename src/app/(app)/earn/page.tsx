@@ -15,7 +15,7 @@ export default function EarnPage() {
     <>
       <PageHeader
         title="Earn virtual coins"
-        description="Tap the button. Each accepted tap is recorded by the server and added to your virtual balance."
+        description="Tap the button to earn virtual coins."
       />
       <Suspense fallback={<Skeleton className="h-96" />}>
         <EarnContent />

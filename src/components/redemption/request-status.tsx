@@ -41,7 +41,7 @@ export function RequestTimeline({ events }: { events: readonly { toStatus: strin
 }
 
 export const REDEMPTION_NOTICE =
-  "Requests are reviewed by hand by the Virtual Earn team. A request is not a payment: nothing is paid until an admin has sent the money and confirmed it, and a request can be rejected. There is no automatic payment provider.";
+  "Our team reviews every request. Once it is approved we send your money and update the status here. If a request is declined, the amount goes back to your balance.";
 
 /** Shown on every conversion and payout screen, next to the main VC disclosure. */
 export function RedemptionNotice() {

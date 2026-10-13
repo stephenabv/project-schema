@@ -42,16 +42,16 @@ export function EarningsBreakdownCard({ breakdown }: { breakdown: EarningsBreakd
             <div>
               <dt className="text-sm text-muted">{s.label}</dt>
               <dd className="font-semibold tabular-nums">{formatCoins(s.total)}</dd>
-              {s.today !== null ? <dd className="text-xs text-muted tabular-nums">{formatCoins(s.today)} today (UTC)</dd> : null}
+              {s.today !== null ? <dd className="text-xs text-muted tabular-nums">{formatCoins(s.today)} today</dd> : null}
             </div>
           </div>
         ))}
       </dl>
       {breakdown.redemptionEnabled || breakdown.reservedCoins > 0 || breakdown.paidCentavos > 0 ? (
         <dl className="grid grid-cols-2 gap-3 border-t border-border pt-3 text-sm sm:grid-cols-4">
-          <Item label="Reserved for conversion" value={formatCoins(breakdown.reservedCoins)} />
-          <Item label="Converted, available" value={formatPhp(breakdown.approvedCentavos)} />
-          <Item label="In payout requests" value={formatPhp(breakdown.pendingPayoutCentavos)} />
+          <Item label="Pending exchange" value={formatCoins(breakdown.reservedCoins)} />
+          <Item label="Pesos available" value={formatPhp(breakdown.approvedCentavos)} />
+          <Item label="Payouts in progress" value={formatPhp(breakdown.pendingPayoutCentavos)} />
           <Item label="Paid out" value={formatPhp(breakdown.paidCentavos)} />
         </dl>
       ) : null}

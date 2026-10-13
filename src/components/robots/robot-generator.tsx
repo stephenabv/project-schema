@@ -216,10 +216,10 @@ export function RobotGenerator({ initial }: { initial: RobotGeneratorData }) {
 
                 {robot.isActive ? (
                   <div>
-                    <ProgressBar value={estimate} max={Math.max(1, capCoins)} label={`${robot.name} storage`} />
+                    <ProgressBar value={estimate} max={Math.max(1, capCoins)} label={`${robot.name} earnings ready`} />
                     <p className="mt-1 text-xs text-muted tabular-nums">
                       {formatCount(estimate)} / {formatCount(capCoins)} VC ready
-                      {estimate >= capCoins ? " · storage full, collect to keep earning" : ""}
+                      {estimate >= capCoins ? " · full, collect to keep earning" : ""}
                     </p>
                   </div>
                 ) : (

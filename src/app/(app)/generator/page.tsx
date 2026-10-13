@@ -18,7 +18,7 @@ export default function GeneratorPage() {
     <>
       <PageHeader
         title="Generator"
-        description="Your robots and starter generator earn virtual coins over time, even while you are away. Collect them before storage fills up."
+        description="Your robots and starter generator earn virtual coins over time, even while you are away. Collect them before they fill up."
         action={
           <ButtonLink href="/robots" variant="secondary">
             Robot Shop
