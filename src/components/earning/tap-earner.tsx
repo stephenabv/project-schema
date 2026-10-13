@@ -129,7 +129,7 @@ export function TapEarner({
   const progress = Math.min(100, (tapsToday / policy.dailyLimit) * 100);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
       <Card className="flex flex-col items-center gap-6 py-10">
         <div className="flex flex-col items-center gap-1 text-center">
           <p className="text-sm text-muted">Virtual balance</p>

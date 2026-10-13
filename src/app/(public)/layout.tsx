@@ -1,3 +1,4 @@
+import { AccountLink } from "@/components/auth/account-link";
 import { Logo } from "@/components/layout/logo";
 import { ButtonLink } from "@/components/ui/button";
 
@@ -5,15 +6,13 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <Logo />
-          <nav aria-label="Main" className="flex items-center gap-2">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3 sm:gap-4">
+          <Logo compact />
+          <nav aria-label="Main" className="flex shrink-0 items-center gap-1 sm:gap-2">
             <ButtonLink href="/about" variant="ghost">
               About
             </ButtonLink>
-            <ButtonLink href="/login" variant="secondary">
-              Sign in
-            </ButtonLink>
+            <AccountLink />
           </nav>
         </div>
       </header>

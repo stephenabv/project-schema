@@ -9,7 +9,7 @@ import type { Achievement } from "@/types/api";
 /** Badges unlock automatically on the server when their goal is reached. */
 export function AchievementGrid({ achievements }: { achievements: Achievement[] }) {
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {achievements.map((a) => (
         <li
           key={a.slug}

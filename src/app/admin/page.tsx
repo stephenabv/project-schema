@@ -71,7 +71,7 @@ async function OverviewContent() {
           <p className="text-sm text-muted">No replayed requests or players at the daily cap.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[520px] text-left text-sm">
+            <table className="stack-table w-full min-w-[520px] text-left text-sm">
               <caption className="sr-only">Players with replayed requests or days at the daily tap limit</caption>
               <thead className="border-b border-border text-xs uppercase tracking-wide text-muted">
                 <tr>
@@ -91,10 +91,10 @@ async function OverviewContent() {
                       </Link>
                       {row.suspended ? <span className="ml-2 text-xs text-danger-text">suspended</span> : null}
                     </td>
-                    <td className="py-2 pr-4 text-right tabular-nums">{formatCount(row.duplicateRequests)}</td>
-                    <td className="py-2 pr-4 text-right tabular-nums">{formatCount(row.daysAtLimit)}</td>
-                    <td className="py-2 pr-4 text-right tabular-nums">{formatCount(row.taps)}</td>
-                    <td className="py-2 text-muted">{formatShortDay(row.lastActiveOn)}</td>
+                    <td data-label="Duplicates" className="py-2 pr-4 text-right tabular-nums">{formatCount(row.duplicateRequests)}</td>
+                    <td data-label="Days at cap" className="py-2 pr-4 text-right tabular-nums">{formatCount(row.daysAtLimit)}</td>
+                    <td data-label="Taps" className="py-2 pr-4 text-right tabular-nums">{formatCount(row.taps)}</td>
+                    <td data-label="Last active" className="py-2 text-muted">{formatShortDay(row.lastActiveOn)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -33,7 +33,7 @@ async function SettingsContent() {
   const settings = await new AdminService(supabase).getSettings();
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <Card className="flex flex-col gap-4">
         <div>
           <CardTitle>Tap policy</CardTitle>

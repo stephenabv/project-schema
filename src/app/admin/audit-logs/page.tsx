@@ -83,7 +83,7 @@ async function AuditContent({ searchParams }: Pick<PageProps<"/admin/audit-logs"
       </form>
 
       <Card className="overflow-x-auto p-0">
-        <table className="w-full min-w-[760px] text-left text-sm">
+        <table className="stack-table w-full min-w-[760px] text-left text-sm [--stack-table-inset:1rem]">
           <caption className="sr-only">Admin audit trail, newest first</caption>
           <thead className="border-b border-border text-xs uppercase tracking-wide text-muted">
             <tr>
@@ -97,13 +97,13 @@ async function AuditContent({ searchParams }: Pick<PageProps<"/admin/audit-logs"
           <tbody className="divide-y divide-border align-top">
             {page.items.map((entry) => (
               <tr key={entry.id}>
-                <td className="whitespace-nowrap px-4 py-3 text-muted">{formatDateTimeUtc(entry.createdAt)}</td>
-                <td className="px-4 py-3">{entry.actorUsername ?? (entry.actorId ? entry.actorId.slice(0, 8) : "system")}</td>
-                <td className="px-4 py-3 font-mono text-xs">{entry.action}</td>
-                <td className="px-4 py-3 font-mono text-xs text-muted" title={entry.targetId ?? undefined}>
+                <td data-label="When" className="whitespace-nowrap px-4 py-3 text-muted">{formatDateTimeUtc(entry.createdAt)}</td>
+                <td data-label="Admin" className="px-4 py-3">{entry.actorUsername ?? (entry.actorId ? entry.actorId.slice(0, 8) : "system")}</td>
+                <td data-label="Action" className="px-4 py-3 font-mono text-xs">{entry.action}</td>
+                <td data-label="Target" className="px-4 py-3 font-mono text-xs text-muted" title={entry.targetId ?? undefined}>
                   {entry.targetType}:{entry.targetId ? entry.targetId.slice(0, 12) : "—"}
                 </td>
-                <td className="px-4 py-3">
+                <td data-label="Details" className="px-4 py-3">
                   <code className="block max-w-md whitespace-pre-wrap break-words text-xs text-muted">
                     {JSON.stringify(entry.metadata)}
                   </code>

@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { safeRedirectPath } from "@/lib/auth/redirect";
 import type { FormState } from "@/lib/auth/form-state";
 import { getPublicEnv } from "@/lib/env";
@@ -47,7 +47,8 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
     };
   }
 
-  redirect(safeRedirectPath(text(formData, "next")));
+  // Replace the history entry so Back does not return to the sign-in form.
+  redirect(safeRedirectPath(text(formData, "next")), RedirectType.replace);
 }
 
 export async function signUp(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -77,7 +78,7 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
     return { status: "error", message: "Unable to create account. Please check your details.", values };
   }
 
-  if (data.session) redirect("/dashboard");
+  if (data.session) redirect("/dashboard", RedirectType.replace);
 
   return {
     status: "success",
@@ -128,11 +129,11 @@ export async function updatePassword(_prev: FormState, formData: FormData): Prom
     return { status: "error", message: "Unable to update your password. Please try again." };
   }
 
-  redirect("/dashboard");
+  redirect("/dashboard", RedirectType.replace);
 }
 
 export async function signOut(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/login");
+  redirect("/login", RedirectType.replace);
 }

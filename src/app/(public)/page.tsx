@@ -1,4 +1,5 @@
 import { ChartLine, Hand, ShieldCheck } from "lucide-react";
+import { SignedInRedirect } from "@/components/auth/signed-in-redirect";
 import { Disclosure } from "@/components/layout/disclosure";
 import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,6 +25,7 @@ const FEATURES = [
 export default function LandingPage() {
   return (
     <div className="flex flex-col gap-10">
+      <SignedInRedirect />
       <section className="flex flex-col items-start gap-5">
         <span className="rounded-full bg-success-surface px-3 py-1 text-xs font-medium text-success-text">
           Earning simulator · virtual coins only
@@ -45,7 +47,7 @@ export default function LandingPage() {
 
       <Disclosure />
 
-      <section aria-label="Features" className="grid gap-4 sm:grid-cols-3">
+      <section aria-label="Features" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {FEATURES.map(({ icon: Icon, title, body }) => (
           <Card key={title}>
             <Icon aria-hidden className="mb-3 size-5 text-primary" />

@@ -26,7 +26,7 @@ export function FeatureFlagsForm({ flags }: { flags: FeatureFlags }) {
   return (
     <form action={action} className="flex flex-col gap-4">
       <FormMessage state={state} />
-      <fieldset className="grid gap-3 sm:grid-cols-2">
+      <fieldset className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <legend className="sr-only">Features</legend>
         {FEATURE_FLAGS.map((flag) => (
           <label key={flag} className="flex items-center gap-2 text-sm">
@@ -93,7 +93,7 @@ export function ScheduleForm({
     <form action={action} className="flex flex-col gap-3" noValidate>
       <FormMessage state={state} />
       <input type="hidden" name="taskId" value={taskId} />
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field
           id={`publishAt-${taskId}`}
           label="Starts (UTC)"

@@ -44,7 +44,7 @@ async function ProfileContent() {
   ];
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
       <Card>
         <ProfileForm username={profile.username} avatarKey={profile.avatarKey} />
       </Card>

@@ -94,7 +94,7 @@ export function GeneratorPanel({ initialStatus }: { initialStatus: GeneratorStat
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
       <Card className="flex flex-col items-center gap-5 py-8 text-center">
         <span className="flex size-20 items-center justify-center rounded-2xl bg-success-surface text-success-text">
           <Factory aria-hidden className="size-10" />

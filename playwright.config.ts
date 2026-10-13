@@ -11,6 +11,9 @@ const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: false,
+  // The specs share one Supabase stack and its auth rate limits; running them
+  // one at a time keeps the long journeys inside their timeouts.
+  workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",

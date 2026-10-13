@@ -27,7 +27,7 @@ async function SettingsContent() {
   const profile = await new ProfileService(supabase).get(user.id);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <Card className="flex flex-col gap-4">
         <CardTitle>Change password</CardTitle>
         <ChangePasswordForm />
