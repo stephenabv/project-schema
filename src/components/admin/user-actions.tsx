@@ -22,7 +22,7 @@ export function UserActions({
   return (
     <details className="group">
       <summary className="cursor-pointer list-none text-sm font-semibold text-primary group-open:mb-3">Manage</summary>
-      <div className="flex w-72 flex-col gap-4 rounded-xl border border-border bg-background p-3">
+      <div className="flex w-72 max-w-full flex-col gap-4 rounded-xl border border-border bg-background p-3">
         {isSelf ? (
           <p className="text-xs text-muted">This is your account. Ask another admin to change your role or status.</p>
         ) : (
