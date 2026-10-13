@@ -3,6 +3,7 @@ import type { TransactionType } from "@/types/database";
 const LABELS: Record<TransactionType, string> = {
   tap_reward: "Tap reward",
   mission_reward: "Mission reward",
+  achievement_reward: "Badge reward",
   admin_adjustment: "Adjustment",
 };
 

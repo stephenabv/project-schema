@@ -5,6 +5,7 @@ import {
   clearCooldown,
   createTestDatabase,
   createUser,
+  disableAchievements,
   hasDatabase,
   sqlState,
   tap,
@@ -18,6 +19,8 @@ describe.skipIf(!hasDatabase)("read models", () => {
 
   beforeAll(async () => {
     db = await createTestDatabase();
+    // Tap mechanics are asserted in isolation from achievement bonuses.
+    await disableAchievements(db.pool);
     user = await createUser(db.pool);
     other = await createUser(db.pool);
     for (let i = 0; i < 3; i += 1) {

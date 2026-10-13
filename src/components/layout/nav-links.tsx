@@ -1,12 +1,14 @@
 "use client";
 
-import { Hand, LayoutDashboard, Wallet } from "lucide-react";
+import { Award, Hand, LayoutDashboard, Target, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export const APP_NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/earn", label: "Earn", icon: Hand },
+  { href: "/missions", label: "Missions", icon: Target },
+  { href: "/achievements", label: "Badges", icon: Award },
   { href: "/wallet", label: "Wallet", icon: Wallet },
 ] as const;
 
@@ -15,7 +17,7 @@ export function NavLinks({ variant }: { variant: "top" | "bottom" }) {
   const pathname = usePathname();
 
   return (
-    <ul className={variant === "top" ? "hidden items-center gap-1 sm:flex" : "grid grid-cols-3"}>
+    <ul className={variant === "top" ? "hidden items-center gap-1 sm:flex" : "grid grid-cols-5"}>
       {APP_NAV.map(({ href, label, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (

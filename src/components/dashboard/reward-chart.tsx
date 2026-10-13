@@ -2,17 +2,19 @@
 
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatCoins } from "@/lib/formatting/coins";
-import { formatShortDay } from "@/lib/formatting/dates";
-import type { RewardSeriesPoint } from "@/types/api";
+import { formatBucket } from "@/lib/formatting/progression";
+import type { RewardBucket, RewardHistoryPoint } from "@/types/api";
 
-/** Daily virtual rewards, aggregated from real ledger entries (UTC days). */
-export function RewardChart({ series }: { series: RewardSeriesPoint[] }) {
+const BUCKET_NOUNS: Record<RewardBucket, string> = { day: "days", week: "weeks", month: "months" };
+
+/** Virtual rewards per UTC day, ISO week or month, aggregated from real ledger entries. */
+export function RewardChart({ series, bucket = "day" }: { series: RewardHistoryPoint[]; bucket?: RewardBucket }) {
   const total = series.reduce((sum, point) => sum + point.coins, 0);
 
   if (total === 0) {
     return (
       <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-border text-sm text-muted">
-        No rewards yet. Your daily virtual earnings will appear here after your first tap.
+        No rewards in this period yet. Your virtual earnings will appear here after your first tap.
       </div>
     );
   }
@@ -20,7 +22,7 @@ export function RewardChart({ series }: { series: RewardSeriesPoint[] }) {
   return (
     <figure className="h-56">
       <figcaption className="sr-only">
-        Daily virtual rewards for the last {series.length} days, totalling {formatCoins(total)}.
+        Virtual rewards for the last {series.length} {BUCKET_NOUNS[bucket]}, totalling {formatCoins(total)}.
       </figcaption>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={series} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
@@ -32,8 +34,8 @@ export function RewardChart({ series }: { series: RewardSeriesPoint[] }) {
           </defs>
           <CartesianGrid stroke="var(--border)" vertical={false} />
           <XAxis
-            dataKey="day"
-            tickFormatter={formatShortDay}
+            dataKey="periodStart"
+            tickFormatter={(value) => formatBucket(bucket, String(value))}
             tick={{ fill: "var(--muted)", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
@@ -48,7 +50,7 @@ export function RewardChart({ series }: { series: RewardSeriesPoint[] }) {
           />
           <Tooltip
             formatter={(value) => [formatCoins(Number(value)), "Virtual rewards"]}
-            labelFormatter={(label) => `${formatShortDay(String(label))} (UTC)`}
+            labelFormatter={(label) => `${formatBucket(bucket, String(label))} (UTC)`}
             contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }}
           />
           <Area

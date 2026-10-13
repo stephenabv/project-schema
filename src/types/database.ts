@@ -4,7 +4,7 @@
  */
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-export type TransactionType = "tap_reward" | "mission_reward" | "admin_adjustment";
+export type TransactionType = "tap_reward" | "mission_reward" | "achievement_reward" | "admin_adjustment";
 
 export type Database = {
   __InternalSupabase: {
@@ -13,9 +13,9 @@ export type Database = {
   public: {
     Tables: {
       player_profiles: {
-        Row: { id: string; username: string; avatar_url: string | null; created_at: string };
-        Insert: { id: string; username: string; avatar_url?: string | null; created_at?: string };
-        Update: { id?: string; username?: string; avatar_url?: string | null; created_at?: string };
+        Row: { id: string; username: string; avatar_url: string | null; avatar_key: string; created_at: string };
+        Insert: { id: string; username: string; avatar_url?: string | null; avatar_key?: string; created_at?: string };
+        Update: { id?: string; username?: string; avatar_url?: string | null; avatar_key?: string; created_at?: string };
         Relationships: [];
       };
       wallets: {
@@ -63,6 +63,26 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      claim_task: {
+        Args: { p_task_id: string; p_idempotency_key: string };
+        Returns: Json;
+      };
+      list_missions: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
+      list_achievements: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
+      get_progression: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
+      get_reward_history: {
+        Args: { p_bucket?: string; p_points?: number };
+        Returns: { period_start: string; coins: number }[];
+      };
       process_tap: {
         Args: { p_idempotency_key: string };
         Returns: Json;

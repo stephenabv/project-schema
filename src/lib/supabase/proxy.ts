@@ -3,7 +3,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getPublicEnv } from "@/lib/env";
 import type { Database } from "@/types/database";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/earn", "/wallet"];
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/earn",
+  "/missions",
+  "/achievements",
+  "/wallet",
+  "/profile",
+  "/settings",
+];
 const GUEST_ONLY_PATHS = ["/login", "/register"];
 
 function matches(pathname: string, prefixes: readonly string[]): boolean {

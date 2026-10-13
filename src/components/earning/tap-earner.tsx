@@ -8,12 +8,14 @@ import { Card } from "@/components/ui/card";
 import { VirtualBadge } from "@/components/ui/virtual-badge";
 import { TapClient } from "@/lib/api/tap-client";
 import { formatCoins, formatCount } from "@/lib/formatting/coins";
-import type { TapPolicy } from "@/types/api";
+import type { TapPolicy, UnlockedAchievement } from "@/types/api";
 import { AnimatedNumber } from "./animated-number";
 
 interface TapEarnerProps {
   initialBalance: number;
   initialTapsToday: number;
+  initialXp: number;
+  initialLevel: number;
   policy: TapPolicy;
 }
 
@@ -34,11 +36,13 @@ interface FloatingReward {
  * The core interaction: tap, wait for the server to accept, then show the
  * new server-confirmed balance. The browser never decides the amount.
  */
-export function TapEarner({ initialBalance, initialTapsToday, policy }: TapEarnerProps) {
+export function TapEarner({ initialBalance, initialTapsToday, initialXp, initialLevel, policy }: TapEarnerProps) {
   const client = useMemo(() => new TapClient(), []);
   const [balance, setBalance] = useState(initialBalance);
   const [tapsToday, setTapsToday] = useState(initialTapsToday);
   const [sessionEarned, setSessionEarned] = useState(0);
+  const [xp, setXp] = useState({ total: initialXp, level: initialLevel });
+  const [badges, setBadges] = useState<UnlockedAchievement[]>([]);
   const [status, setStatus] = useState<Status>(
     initialTapsToday >= policy.dailyLimit ? { kind: "limit" } : { kind: "ready" },
   );
@@ -80,11 +84,16 @@ export function TapEarner({ initialBalance, initialTapsToday, policy }: TapEarne
         const { data } = outcome;
         setBalance(data.balanceCoins);
         setTapsToday(data.tapsToday);
+        setXp({ total: data.xpTotal, level: data.level });
+        if (data.unlockedAchievements.length > 0) setBadges(data.unlockedAchievements);
         if (!data.duplicate) {
           setSessionEarned((total) => total + data.rewardCoins);
           setFloats((list) => [...list.slice(-4), { id: data.transactionId, amount: data.rewardCoins }]);
           setAnnouncement(
-            `Plus ${data.rewardCoins} virtual coins. Balance ${formatCoins(data.balanceCoins)}, virtual and non-redeemable.`,
+            `Plus ${data.rewardCoins} virtual coins. Balance ${formatCoins(data.balanceCoins)}, virtual and non-redeemable.` +
+              (data.unlockedAchievements.length > 0
+                ? ` New badge: ${data.unlockedAchievements.map((a) => a.title).join(", ")}.`
+                : ""),
           );
         }
         if (data.tapsToday >= policy.dailyLimit) setStatus({ kind: "limit" });
@@ -156,6 +165,14 @@ export function TapEarner({ initialBalance, initialTapsToday, policy }: TapEarne
           {announcement}
         </div>
 
+        {badges.length > 0 ? (
+          <Alert tone="success">
+            New badge{badges.length > 1 ? "s" : ""} unlocked: {badges.map((a) => a.title).join(", ")}.{" "}
+            <Link href="/achievements" className="font-semibold underline">
+              See badges
+            </Link>
+          </Alert>
+        ) : null}
         {status.kind === "limit" ? (
           <Alert tone="warning">Daily limit reached. Your taps reset at midnight UTC.</Alert>
         ) : null}
@@ -175,6 +192,13 @@ export function TapEarner({ initialBalance, initialTapsToday, policy }: TapEarne
           <p className="text-sm text-muted">Earned this session</p>
           <AnimatedNumber value={sessionEarned} format={formatCoins} className="text-2xl font-bold text-primary" />
           <p className="mt-1 text-xs text-muted">Virtual coins only, no monetary value.</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-muted">Level</p>
+          <p className="text-2xl font-bold tabular-nums">{xp.level}</p>
+          <p className="mt-1 text-xs text-muted tabular-nums">
+            {formatCount(xp.total)} XP · +{policy.xpPerTap} XP per tap
+          </p>
         </Card>
         <Card>
           <div className="mb-2 flex items-baseline justify-between text-sm">

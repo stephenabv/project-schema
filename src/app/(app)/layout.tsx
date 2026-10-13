@@ -1,8 +1,8 @@
-import { LogOut } from "lucide-react";
+import { CircleUserRound, LogOut, Settings } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
 import { Logo } from "@/components/layout/logo";
 import { NavLinks } from "@/components/layout/nav-links";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 
 /**
  * Signed-in area shell. It holds no user data so it prerenders; each page
@@ -24,12 +24,20 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
           <nav aria-label="Main">
             <NavLinks variant="top" />
           </nav>
-          <form action={signOut}>
-            <Button type="submit" variant="ghost" aria-label="Sign out">
-              <LogOut aria-hidden className="size-4" />
-              <span className="hidden sm:inline">Sign out</span>
-            </Button>
-          </form>
+          <div className="flex items-center gap-1">
+            <ButtonLink href="/profile" variant="ghost" aria-label="Profile" className="px-2.5">
+              <CircleUserRound aria-hidden className="size-4" />
+            </ButtonLink>
+            <ButtonLink href="/settings" variant="ghost" aria-label="Settings" className="px-2.5">
+              <Settings aria-hidden className="size-4" />
+            </ButtonLink>
+            <form action={signOut}>
+              <Button type="submit" variant="ghost" aria-label="Sign out" className="px-2.5">
+                <LogOut aria-hidden className="size-4" />
+                <span className="hidden md:inline">Sign out</span>
+              </Button>
+            </form>
+          </div>
         </div>
       </header>
       <main id="content" className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">

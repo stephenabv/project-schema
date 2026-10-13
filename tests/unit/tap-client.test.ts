@@ -9,6 +9,10 @@ const success = {
   rewardCoins: 10,
   balanceCoins: 20,
   tapsToday: 2,
+  xpEarned: 1,
+  xpTotal: 51,
+  level: 1,
+  unlockedAchievements: [],
   currency: "VC",
   redeemable: false,
 };

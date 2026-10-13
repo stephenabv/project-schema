@@ -6,6 +6,7 @@ import {
   clearCooldown,
   createTestDatabase,
   createUser,
+  disableAchievements,
   hasDatabase,
   ledgerCount,
   ledgerSum,
@@ -19,6 +20,8 @@ describe.skipIf(!hasDatabase)("process_tap", () => {
 
   beforeAll(async () => {
     db = await createTestDatabase();
+    // Tap mechanics are asserted in isolation from achievement bonuses.
+    await disableAchievements(db.pool);
   });
 
   afterAll(async () => {

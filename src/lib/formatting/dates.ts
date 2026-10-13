@@ -22,3 +22,10 @@ export function formatDateTimeUtc(iso: string): string {
 export function formatShortDay(isoDay: string): string {
   return shortDay.format(new Date(`${isoDay}T00:00:00Z`));
 }
+
+const shortDate = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", year: "numeric", month: "short", day: "numeric" });
+
+/** "Oct 12, 2026" for a timestamp (UTC). */
+export function formatShortDate(iso: string): string {
+  return shortDate.format(new Date(iso));
+}
