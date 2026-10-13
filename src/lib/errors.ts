@@ -72,7 +72,9 @@ export type ConflictCode =
   | "MISSION_INCOMPLETE"
   | "ALREADY_EXISTS"
   | "INSUFFICIENT_BALANCE"
-  | "ACTION_NOT_ALLOWED";
+  | "ACTION_NOT_ALLOWED"
+  | "LEVEL_REQUIRED"
+  | "ALREADY_OWNED";
 
 /** The request conflicts with the current state (409). */
 export class ConflictError extends AppError {

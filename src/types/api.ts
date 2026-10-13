@@ -122,7 +122,7 @@ export interface ClaimResponse extends VirtualAmount, ProgressDelta {
   balanceCoins: number;
 }
 
-export type AchievementMetric = "total_taps" | "total_coins_earned" | "missions_completed" | "level";
+export type AchievementMetric = "total_taps" | "total_coins_earned" | "missions_completed" | "level" | "longest_streak";
 
 export interface Achievement {
   slug: string;
@@ -175,6 +175,8 @@ export const API_ERROR_CODES = [
   "ALREADY_EXISTS",
   "INSUFFICIENT_BALANCE",
   "ACTION_NOT_ALLOWED",
+  "LEVEL_REQUIRED",
+  "ALREADY_OWNED",
   "FORBIDDEN",
   "ACCOUNT_SUSPENDED",
   "INTERNAL_ERROR",

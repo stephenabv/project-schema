@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Avatar } from "@/components/profile/avatar";
 import { ProfileForm } from "@/components/profile/profile-form";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSessionOrRedirect } from "@/lib/auth/session";
@@ -10,6 +11,7 @@ import { formatCoins, formatCount } from "@/lib/formatting/coins";
 import { formatShortDate } from "@/lib/formatting/dates";
 import { ProfileService } from "@/services/profile";
 import { ProgressionService } from "@/services/progression";
+import { ShopService } from "@/services/shop";
 
 export const metadata: Metadata = { title: "Profile" };
 
@@ -26,9 +28,10 @@ export default function ProfilePage() {
 
 async function ProfileContent() {
   const { supabase, user } = await getSessionOrRedirect("/profile");
-  const [profile, progression] = await Promise.all([
+  const [profile, progression, cosmetics] = await Promise.all([
     new ProfileService(supabase).get(user.id),
     new ProgressionService(supabase).get(),
+    new ShopService(supabase).equipped(),
   ]);
 
   const stats = [
@@ -47,9 +50,10 @@ async function ProfileContent() {
       </Card>
       <Card className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
-          <Avatar avatarKey={profile.avatarKey} size="lg" />
+          <Avatar avatarKey={profile.avatarKey} size="lg" frame={cosmetics.avatarFrame} />
           <div className="min-w-0">
             <p className="truncate text-lg font-semibold">{profile.username}</p>
+            {cosmetics.title ? <p className="text-xs font-semibold text-primary">{cosmetics.title}</p> : null}
             <p className="text-xs text-muted">Joined {formatShortDate(profile.createdAt)}</p>
           </div>
         </div>
@@ -62,6 +66,14 @@ async function ProfileContent() {
             </div>
           ))}
         </dl>
+        <div className="flex flex-wrap gap-2">
+          <ButtonLink href="/shop" variant="secondary">
+            Shop cosmetics
+          </ButtonLink>
+          <ButtonLink href="/leaderboard" variant="secondary">
+            Leaderboard
+          </ButtonLink>
+        </div>
       </Card>
     </div>
   );

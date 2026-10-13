@@ -4,7 +4,13 @@
  */
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-export type TransactionType = "tap_reward" | "mission_reward" | "achievement_reward" | "admin_adjustment";
+export type TransactionType =
+  | "tap_reward"
+  | "mission_reward"
+  | "achievement_reward"
+  | "daily_bonus"
+  | "shop_purchase"
+  | "admin_adjustment";
 
 export type Database = {
   __InternalSupabase: {
@@ -21,9 +27,17 @@ export type Database = {
           created_at: string;
           suspended_at: string | null;
           suspension_reason: string | null;
+          leaderboard_opt_out: boolean;
         };
         Insert: { id: string; username: string; avatar_url?: string | null; avatar_key?: string; created_at?: string };
-        Update: { id?: string; username?: string; avatar_url?: string | null; avatar_key?: string; created_at?: string };
+        Update: {
+          id?: string;
+          username?: string;
+          avatar_url?: string | null;
+          avatar_key?: string;
+          created_at?: string;
+          leaderboard_opt_out?: boolean;
+        };
         Relationships: [];
       };
       wallets: {
@@ -71,6 +85,16 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      ve_list_notifications: { Args: { p_limit?: number }; Returns: Json };
+      ve_unread_notification_count: { Args: Record<PropertyKey, never>; Returns: number };
+      ve_mark_notifications_read: { Args: { p_ids?: string[] | null }; Returns: number };
+      get_daily_bonus_status: { Args: Record<PropertyKey, never>; Returns: Json };
+      claim_daily_bonus: { Args: { p_idempotency_key: string }; Returns: Json };
+      get_leaderboard: { Args: { p_board?: string; p_limit?: number }; Returns: Json };
+      list_shop: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_equipped_cosmetics: { Args: Record<PropertyKey, never>; Returns: Json };
+      purchase_item: { Args: { p_item_id: string; p_idempotency_key: string }; Returns: Json };
+      equip_item: { Args: { p_item_id: string; p_equip?: boolean }; Returns: Json };
       get_account_status: { Args: Record<PropertyKey, never>; Returns: Json };
       ve_admin_overview: { Args: Record<PropertyKey, never>; Returns: Json };
       ve_admin_activity_series: {

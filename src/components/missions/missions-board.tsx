@@ -12,6 +12,12 @@ import { formatCoins, formatCount } from "@/lib/formatting/coins";
 import { describeMissionGoal, frequencyLabel } from "@/lib/formatting/progression";
 import type { Mission, UnlockedAchievement } from "@/types/api";
 
+const MISSION_GROUPS: readonly { frequency: Mission["frequency"]; heading: string }[] = [
+  { frequency: "daily", heading: "Daily missions" },
+  { frequency: "weekly", heading: "Weekly challenges" },
+  { frequency: "once", heading: "One-time goals" },
+];
+
 type Notice = { tone: "success" | "warning" | "danger"; text: string; signedOut?: boolean };
 
 /**
@@ -90,13 +96,24 @@ export function MissionsBoard({ initialMissions }: { initialMissions: Mission[] 
           </Alert>
         ) : null}
       </div>
-      <ul className="grid gap-4 md:grid-cols-2">
-        {missions.map((mission) => (
-          <li key={mission.id}>
-            <MissionCard mission={mission} pending={pendingId === mission.id} onClaim={claim} />
-          </li>
-        ))}
-      </ul>
+      {MISSION_GROUPS.map(({ frequency, heading }) => {
+        const group = missions.filter((m) => m.frequency === frequency);
+        if (group.length === 0) return null;
+        return (
+          <section key={frequency} aria-labelledby={`missions-${frequency}`} className="flex flex-col gap-3">
+            <h2 id={`missions-${frequency}`} className="text-sm font-semibold uppercase tracking-wide text-muted">
+              {heading}
+            </h2>
+            <ul className="grid gap-4 md:grid-cols-2">
+              {group.map((mission) => (
+                <li key={mission.id}>
+                  <MissionCard mission={mission} pending={pendingId === mission.id} onClaim={claim} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
     </div>
   );
 }

@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
 // The full vertical slice against a real Supabase stack:
-// register -> dashboard -> tap (+ first badge) -> persisted balance -> mission claim -> ledger -> sign out.
+// register -> dashboard -> tap (+ first badge) -> persisted balance -> mission claim -> ledger
+// -> daily bonus -> shop -> leaderboard -> notifications -> sign out.
 test.describe.configure({ mode: "serial" });
 
 test("a new user taps and sees server-confirmed running earnings", async ({ page, request }) => {
@@ -58,7 +59,7 @@ test("a new user taps and sees server-confirmed running earnings", async ({ page
   expect(again.status()).toBe(409);
 
   await page.goto("/achievements");
-  await expect(page.getByText("2 of 10 badges unlocked")).toBeVisible();
+  await expect(page.getByText("2 of 13 badges unlocked")).toBeVisible();
 
   await page.goto("/wallet");
   await expect(page.getByRole("complementary", { name: "Virtual currency disclosure" })).toBeVisible();
@@ -70,6 +71,30 @@ test("a new user taps and sees server-confirmed running earnings", async ({ page
   // 2 taps (20) + First Tap (10) + First Steps (25) + On a Mission (50).
   await expect(page.getByText("105 VC", { exact: true }).first()).toBeVisible();
   await expect(page.getByRole("figure")).toBeVisible();
+
+  // Daily check-in: day one pays 20 VC, and a second claim the same UTC day is refused.
+  await page.getByRole("button", { name: "Claim +20 VC" }).click();
+  await expect(page.getByText(/Claimed \+20 VC/)).toBeVisible();
+  await expect(page.getByText("125 VC", { exact: true }).first()).toBeVisible();
+  const bonusAgain = await page.request.post("/api/daily-bonus", { data: { idempotencyKey: randomUUID() } });
+  expect(bonusAgain.status()).toBe(409);
+
+  // The shop prices in virtual coins and the server enforces balance and level.
+  await page.goto("/shop");
+  await expect(page.getByRole("button", { name: "Buy Tapper for 150 VC" })).toBeDisabled();
+  await expect(page.getByText("Level 8 required")).toBeVisible();
+  const shop = (await (await page.request.get("/api/shop")).json()) as { items: { id: string; slug: string }[] };
+  const tapper = shop.items.find((i) => i.slug === "title-tapper");
+  const broke = await page.request.post(`/api/shop/${tapper!.id}/purchase`, { data: { idempotencyKey: randomUUID() } });
+  expect(broke.status()).toBe(409);
+
+  await page.goto("/leaderboard");
+  await expect(page.getByRole("listitem").filter({ hasText: username }).getByText("(you)")).toBeVisible();
+
+  await page.goto("/notifications");
+  await expect(page.getByText("Badge unlocked: First Tap")).toBeVisible();
+  await page.getByRole("button", { name: "Mark all as read" }).click();
+  await expect(page.getByText("All caught up")).toBeVisible();
 
   // The browser session cannot be used to inflate the balance directly.
   const forged = await page.request.post("/api/earn/tap", {

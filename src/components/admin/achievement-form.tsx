@@ -15,6 +15,7 @@ const METRICS = [
   { value: "total_coins_earned", label: "Virtual coins earned" },
   { value: "missions_completed", label: "Missions claimed" },
   { value: "level", label: "Level reached" },
+  { value: "longest_streak", label: "Longest daily streak" },
 ] as const;
 const ICONS = BADGE_ICON_KEYS.map((key) => ({ value: key, label: key }));
 
