@@ -51,17 +51,17 @@ export function AchievementForm({ achievement }: { achievement?: AdminAchievemen
     <form key={formKey} action={action} className="flex flex-col gap-4" noValidate>
       <FormMessage state={state} />
       <input type="hidden" name="id" value={achievement?.id ?? ""} />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field id={`${prefix}-title`} label="Title" name="title" defaultValue={v.title} required maxLength={80} error={e.title} />
         <Field id={`${prefix}-slug`} label="Slug" name="slug" defaultValue={v.slug} required maxLength={48} error={e.slug} />
       </div>
       <Field id={`${prefix}-description`} label="Description" name="description" defaultValue={v.description} maxLength={280} error={e.description} />
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <SelectField id={`${prefix}-metric`} label="Metric" name="metric" options={METRICS} defaultValue={v.metric} error={e.metric} />
         <Field id={`${prefix}-threshold`} label="Threshold" name="threshold" type="number" min={1} defaultValue={v.threshold} error={e.threshold} />
         <SelectField id={`${prefix}-icon`} label="Icon" name="icon" options={ICONS} defaultValue={v.icon} error={e.icon} />
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field id={`${prefix}-reward`} label="Reward (VC)" name="rewardCoins" type="number" min={0} defaultValue={v.rewardCoins} error={e.rewardCoins} />
         <Field id={`${prefix}-xp`} label="XP" name="xpReward" type="number" min={0} defaultValue={v.xpReward} error={e.xpReward} />
         <Field id={`${prefix}-sort`} label="Sort order" name="sortOrder" type="number" defaultValue={v.sortOrder} error={e.sortOrder} />

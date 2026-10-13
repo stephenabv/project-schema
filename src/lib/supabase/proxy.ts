@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { DEFAULT_AFTER_LOGIN, safeRedirectPath } from "@/lib/auth/redirect";
 import { getPublicEnv } from "@/lib/env";
 import type { Database } from "@/types/database";
 
@@ -18,6 +19,8 @@ const PROTECTED_PREFIXES = [
   "/admin",
 ];
 const GUEST_ONLY_PATHS = ["/login", "/register"];
+/** The landing page only invites guests to sign up or sign in. */
+const GUEST_ONLY_EXACT = ["/"];
 
 function matches(pathname: string, prefixes: readonly string[]): boolean {
   return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
@@ -67,8 +70,10 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     return redirectPreservingCookies(request, response, "/login", { next: `${pathname}${search}` });
   }
 
-  if (isAuthenticated && matches(pathname, GUEST_ONLY_PATHS)) {
-    return redirectPreservingCookies(request, response, "/dashboard");
+  if (isAuthenticated && (GUEST_ONLY_EXACT.includes(pathname) || matches(pathname, GUEST_ONLY_PATHS))) {
+    // Honour a validated ?next= so a signed-in player lands where they were headed.
+    const target = safeRedirectPath(request.nextUrl.searchParams.get("next"), DEFAULT_AFTER_LOGIN);
+    return redirectPreservingCookies(request, response, target);
   }
 
   return response;
@@ -77,12 +82,13 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 function redirectPreservingCookies(
   request: NextRequest,
   source: NextResponse,
-  pathname: string,
+  target: string,
   params: Record<string, string> = {},
 ): NextResponse {
-  const url = request.nextUrl.clone();
-  url.pathname = pathname;
-  url.search = new URLSearchParams(params).toString();
+  // `target` may carry its own query string (a validated ?next= value).
+  const url = new URL(target, request.nextUrl.origin);
+  const extra = new URLSearchParams(params);
+  extra.forEach((value, key) => url.searchParams.set(key, value));
   const redirect = NextResponse.redirect(url);
   source.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
   return redirect;

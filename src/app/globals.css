@@ -40,6 +40,8 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  /* Long unbroken strings (emails, usernames, ids) wrap instead of widening the page. */
+  overflow-wrap: break-word;
 }
 
 :focus-visible {
@@ -82,5 +84,142 @@ body {
   }
   .animate-reward-float {
     opacity: 0;
+  }
+}
+
+/*
+ * Tables marked .stack-table turn into labelled cards on phones instead of
+ * scrolling sideways. Each <td> names its column with data-label; a cell
+ * without one (the row's title or its actions) spans the card. Unlayered, so
+ * it overrides the table's Tailwind min-width and padding utilities.
+ */
+@media (max-width: 639.98px) {
+  .stack-table {
+    min-width: 0;
+  }
+  .stack-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .stack-table tbody,
+  .stack-table tr,
+  .stack-table td {
+    display: block;
+  }
+  .stack-table tr {
+    padding-block: 0.75rem;
+  }
+  .stack-table td {
+    padding: 0.2rem var(--stack-table-inset, 0);
+    white-space: normal;
+  }
+  .stack-table td[data-label] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 0.25rem 1rem;
+    text-align: right;
+  }
+  .stack-table td[data-label]::before {
+    content: attr(data-label);
+    margin-inline-end: auto;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-align: left;
+  }
+}
+
+/* Launch splash (src/components/layout/splash-screen.tsx): plays once per session, then fades out on its own. */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--background);
+  animation: splash-out 400ms ease-in 900ms forwards;
+}
+
+:root[data-splash="seen"] .splash-screen {
+  display: none;
+}
+
+.splash-screen__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.splash-screen__mark {
+  margin-bottom: 0.5rem;
+  border-radius: 22px;
+  box-shadow: 0 12px 32px -12px rgb(5 150 105 / 0.6);
+  animation: splash-pop 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.splash-screen__bar {
+  position: relative;
+  margin-top: 0.75rem;
+  width: 8rem;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--border);
+}
+
+.splash-screen__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--primary);
+  transform-origin: left;
+  animation: splash-progress 900ms ease-out forwards;
+}
+
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes splash-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splash-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-screen {
+    animation-duration: 1ms;
+    animation-delay: 600ms;
+  }
+  .splash-screen__mark,
+  .splash-screen__bar::after {
+    animation: none;
   }
 }

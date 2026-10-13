@@ -104,7 +104,7 @@ export function MissionsBoard({ initialMissions }: { initialMissions: Mission[] 
             <h2 id={`missions-${frequency}`} className="text-sm font-semibold uppercase tracking-wide text-muted">
               {heading}
             </h2>
-            <ul className="grid gap-4 md:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {group.map((mission) => (
                 <li key={mission.id}>
                   <MissionCard mission={mission} pending={pendingId === mission.id} onClaim={claim} />

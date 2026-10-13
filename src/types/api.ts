@@ -193,3 +193,8 @@ export interface ApiErrorBody {
   error: string;
   code: ApiErrorCode;
 }
+
+/** GET /api/auth/session: a flag only, never the user's identity. */
+export interface SessionStatus {
+  authenticated: boolean;
+}

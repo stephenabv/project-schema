@@ -58,7 +58,7 @@ async function UsersContent({ searchParams }: Pick<PageProps<"/admin/users">, "s
       </p>
 
       <Card className="overflow-x-auto p-0">
-        <table className="w-full min-w-[860px] text-left text-sm">
+        <table className="stack-table w-full min-w-[860px] text-left text-sm [--stack-table-inset:1rem]">
           <caption className="sr-only">Players, newest first</caption>
           <thead className="border-b border-border text-xs uppercase tracking-wide text-muted">
             <tr>
@@ -79,7 +79,7 @@ async function UsersContent({ searchParams }: Pick<PageProps<"/admin/users">, "s
                     {user.id.slice(0, 8)}
                   </p>
                 </td>
-                <td className="px-4 py-3">
+                <td data-label="Status" className="px-4 py-3">
                   {user.role === "admin" ? (
                     <span className="mr-1 rounded-full bg-warning-surface px-2 py-0.5 text-xs font-semibold text-warning-text">admin</span>
                   ) : null}
@@ -94,11 +94,11 @@ async function UsersContent({ searchParams }: Pick<PageProps<"/admin/users">, "s
                     <span className="text-xs text-muted">active</span>
                   )}
                 </td>
-                <td className="px-4 py-3 tabular-nums">{formatCoins(user.balanceCoins)}</td>
-                <td className="px-4 py-3 tabular-nums">{user.level}</td>
-                <td className="px-4 py-3 tabular-nums">{formatCount(user.totalTaps)}</td>
-                <td className="px-4 py-3 text-muted">{formatShortDate(user.createdAt)}</td>
-                <td className="px-4 py-3 text-muted">{user.lastActiveOn ? formatShortDay(user.lastActiveOn) : "never"}</td>
+                <td data-label="Balance" className="px-4 py-3 tabular-nums">{formatCoins(user.balanceCoins)}</td>
+                <td data-label="Level" className="px-4 py-3 tabular-nums">{user.level}</td>
+                <td data-label="Taps" className="px-4 py-3 tabular-nums">{formatCount(user.totalTaps)}</td>
+                <td data-label="Joined" className="px-4 py-3 text-muted">{formatShortDate(user.createdAt)}</td>
+                <td data-label="Last active" className="px-4 py-3 text-muted">{user.lastActiveOn ? formatShortDay(user.lastActiveOn) : "never"}</td>
                 <td className="px-4 py-3">
                   <UserActions user={user} isSelf={user.id === me.id} adjustmentKey={randomUUID()} />
                 </td>

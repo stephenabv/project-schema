@@ -12,6 +12,13 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#f8fafc",
     theme_color: "#059669",
     categories: ["games", "entertainment"],
-    icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
+    // PNGs are required for Android's install prompt and launch splash; regenerate
+    // them with scripts/generate-icons.mjs whenever src/app/icon.svg changes.
+    icons: [
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+    ],
   };
 }

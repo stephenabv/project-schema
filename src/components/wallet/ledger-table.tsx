@@ -14,7 +14,7 @@ export function LedgerTable({ items }: { items: TransactionDto[] }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[520px] text-left text-sm">
+      <table className="stack-table w-full min-w-[520px] text-left text-sm">
         <caption className="sr-only">Virtual coin activity, newest first</caption>
         <thead className="border-b border-border text-xs uppercase tracking-wide text-muted">
           <tr>
@@ -35,12 +35,13 @@ export function LedgerTable({ items }: { items: TransactionDto[] }) {
         <tbody className="divide-y divide-border">
           {items.map((item) => (
             <tr key={item.id}>
-              <td className="py-3 pr-4 whitespace-nowrap text-muted">{formatDateTimeUtc(item.createdAt)}</td>
-              <td className="py-3 pr-4">{transactionTypeLabel(item.type)}</td>
-              <td className="py-3 pr-4 font-mono text-xs text-muted" title={item.id}>
+              <td data-label="Date" className="py-3 pr-4 whitespace-nowrap text-muted">{formatDateTimeUtc(item.createdAt)}</td>
+              <td data-label="Activity" className="py-3 pr-4">{transactionTypeLabel(item.type)}</td>
+              <td data-label="Reference" className="py-3 pr-4 font-mono text-xs text-muted" title={item.id}>
                 {item.id.slice(0, 8)}
               </td>
               <td
+                data-label="Amount (virtual)"
                 className={`py-3 text-right font-semibold tabular-nums ${
                   item.amountCoins > 0 ? "text-success-text" : "text-danger-text"
                 }`}

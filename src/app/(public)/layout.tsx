@@ -1,3 +1,4 @@
+import { AccountLink } from "@/components/auth/account-link";
 import { Logo } from "@/components/layout/logo";
 import { ButtonLink } from "@/components/ui/button";
 
@@ -11,9 +12,7 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
             <ButtonLink href="/about" variant="ghost">
               About
             </ButtonLink>
-            <ButtonLink href="/login" variant="secondary">
-              Sign in
-            </ButtonLink>
+            <AccountLink />
           </nav>
         </div>
       </header>

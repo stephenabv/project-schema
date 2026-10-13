@@ -54,7 +54,7 @@ export function TaskForm({ task }: { task?: AdminTask }) {
     <form key={formKey} action={action} className="flex flex-col gap-4" noValidate>
       <FormMessage state={state} />
       <input type="hidden" name="id" value={task?.id ?? ""} />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field id={`${prefix}-title`} label="Title" name="title" defaultValue={v.title} required maxLength={80} error={e.title} />
         <Field
           id={`${prefix}-slug`}
@@ -75,12 +75,12 @@ export function TaskForm({ task }: { task?: AdminTask }) {
         maxLength={280}
         error={e.description}
       />
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <SelectField id={`${prefix}-objective`} label="Objective" name="objectiveType" options={OBJECTIVES} defaultValue={v.objectiveType} error={e.objectiveType} />
         <Field id={`${prefix}-target`} label="Target" name="target" type="number" min={1} defaultValue={v.target} error={e.target} />
         <SelectField id={`${prefix}-frequency`} label="Frequency" name="frequency" options={FREQUENCIES} defaultValue={v.frequency} error={e.frequency} />
       </div>
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
         <Field id={`${prefix}-reward`} label="Reward (VC)" name="rewardCoins" type="number" min={1} defaultValue={v.rewardCoins} error={e.rewardCoins} />
         <Field id={`${prefix}-xp`} label="XP" name="xpReward" type="number" min={0} defaultValue={v.xpReward} error={e.xpReward} />
         <Field id={`${prefix}-sort`} label="Sort order" name="sortOrder" type="number" defaultValue={v.sortOrder} error={e.sortOrder} />

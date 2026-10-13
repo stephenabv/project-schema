@@ -17,7 +17,7 @@ export const ADMIN_NAV = [
 export function AdminNav() {
   const pathname = usePathname();
   return (
-    <ul className="flex gap-1 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
+    <ul className="flex flex-wrap gap-1 lg:flex-col">
       {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
         const active = href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
         return (
@@ -25,7 +25,7 @@ export function AdminNav() {
             <Link
               href={href}
               aria-current={active ? "page" : undefined}
-              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium ${
+              className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium ${
                 active ? "bg-success-surface text-success-text" : "text-muted hover:text-foreground"
               }`}
             >

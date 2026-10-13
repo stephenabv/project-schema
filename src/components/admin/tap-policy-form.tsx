@@ -26,7 +26,7 @@ export function TapPolicyForm({ policy }: { policy: TapPolicy }) {
   return (
     <form action={action} className="flex flex-col gap-4" noValidate>
       <FormMessage state={state} />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Reward per tap (VC)" name="rewardCoins" type="number" min={1} max={1000} defaultValue={v.rewardCoins} hint="1 to 1,000" error={e.rewardCoins} />
         <Field label="XP per tap" name="xpPerTap" type="number" min={0} max={100} defaultValue={v.xpPerTap} hint="0 to 100" error={e.xpPerTap} />
         <Field label="Cooldown (ms)" name="cooldownMs" type="number" min={250} max={60000} defaultValue={v.cooldownMs} hint="250 to 60,000" error={e.cooldownMs} />
