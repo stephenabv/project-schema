@@ -63,11 +63,8 @@ test("a new user taps and sees server-confirmed running earnings", async ({ page
 
   await page.goto("/wallet");
   await expect(page.getByRole("complementary", { name: "How virtual coins work" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Earnings by source" }).or(page.getByText("Tapping")).first()).toBeVisible();
-  // The full history is still kept and served, even though the wallet page no longer lists it.
-  const history = (await (await page.request.get("/api/transactions")).json()) as { items: { type: string }[] };
-  expect(history.items.filter((i) => i.type === "tap_reward")).toHaveLength(2);
-  expect(history.items.filter((i) => i.type === "achievement_reward")).toHaveLength(2);
+  await expect(page.getByRole("cell", { name: "Tap reward" })).toHaveCount(2);
+  await expect(page.getByRole("cell", { name: "Badge reward" })).toHaveCount(2);
 
   await page.goto("/dashboard");
   await expect(page.getByText("Taps completed")).toBeVisible();
