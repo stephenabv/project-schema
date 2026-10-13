@@ -6,6 +6,7 @@ import { UserActions } from "@/components/admin/user-actions";
 import { PageHeader } from "@/components/layout/page-header";
 import { buttonClass } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { FilterActions, FilterBar, FilterField, FilterInput } from "@/components/ui/filter-bar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAdminOrNotFound } from "@/lib/auth/require-admin";
 import { formatCoins, formatCount } from "@/lib/formatting/coins";
@@ -36,21 +37,16 @@ async function UsersContent({ searchParams }: Pick<PageProps<"/admin/users">, "s
 
   return (
     <div className="flex flex-col gap-4">
-      <form method="get" action="/admin/users" className="flex flex-wrap items-end gap-3" role="search">
-        <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-muted">
-          Username, email or user id
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            maxLength={254}
-            className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
-          />
-        </label>
-        <button type="submit" className={buttonClass("secondary")}>
-          Search
-        </button>
-      </form>
+      <FilterBar
+        action="/admin/users"
+        label="Search players"
+        role="search"
+        actions={<FilterActions resetHref={q ? "/admin/users" : undefined} submitLabel="Search" />}
+      >
+        <FilterField label="Username, email or user id" grow={2}>
+          <FilterInput type="search" name="q" defaultValue={q} maxLength={254} />
+        </FilterField>
+      </FilterBar>
 
       <p className="text-sm text-muted">
         {formatCount(result.total)} {result.total === 1 ? "player" : "players"}

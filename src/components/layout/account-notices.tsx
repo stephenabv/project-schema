@@ -13,9 +13,8 @@ export async function AdminLink() {
   const status = await getAccountStatus();
   if (!status?.isAdmin) return null;
   return (
-    <ButtonLink href="/admin" variant="ghost" aria-label="Admin console" className="px-2.5">
+    <ButtonLink href="/admin" variant="ghost" aria-label="Admin console" title="Admin console" size="icon">
       <ShieldCheck aria-hidden className="size-4" />
-      <span className="hidden lg:inline">Admin</span>
     </ButtonLink>
   );
 }
@@ -62,12 +61,12 @@ export async function NotificationBell() {
 
   const label = unread > 0 ? `Notifications, ${unread} unread` : "Notifications";
   return (
-    <ButtonLink href="/notifications" variant="ghost" aria-label={label} className="relative px-2.5">
+    <ButtonLink href="/notifications" variant="ghost" aria-label={label} size="icon" className="relative">
       <Bell aria-hidden className="size-4" />
       {unread > 0 ? (
         <span
           aria-hidden
-          className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-danger-text px-1 text-center text-[10px] font-bold leading-4 text-white tabular-nums"
+          className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-danger px-1 text-center text-[10px] font-bold leading-4 text-white tabular-nums"
         >
           {unread > 99 ? "99+" : unread}
         </span>

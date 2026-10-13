@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { buttonClass } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { FilterActions, FilterBar, FilterField, FilterInput, FilterSelect } from "@/components/ui/filter-bar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAdminOrNotFound } from "@/lib/auth/require-admin";
 import { formatDateTimeUtc } from "@/lib/formatting/dates";
@@ -40,7 +41,6 @@ async function AuditContent({ searchParams }: Pick<PageProps<"/admin/audit-logs"
   const { supabase } = await getAdminOrNotFound("/admin/audit-logs");
   const query = auditQuerySchema.parse(queryRecord(await searchParams));
   const page = await new AdminService(supabase).listAuditLogs(query);
-  const inputClass = "rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground";
   const filters = { action: query.action, target: query.target, from: query.from, to: query.to };
   const nextHref = page.nextCursor
     ? `/admin/audit-logs?${new URLSearchParams({
@@ -51,36 +51,26 @@ async function AuditContent({ searchParams }: Pick<PageProps<"/admin/audit-logs"
 
   return (
     <div className="flex flex-col gap-4">
-      <form method="get" action="/admin/audit-logs" className="flex flex-wrap items-end gap-3" aria-label="Filter audit log">
-        <label className="flex flex-col gap-1 text-xs font-medium text-muted">
-          Action
-          <select name="action" defaultValue={query.action ?? ""} className={inputClass}>
+      <FilterBar action="/admin/audit-logs" label="Filter audit log" actions={<FilterActions resetHref="/admin/audit-logs" />}>
+        <FilterField label="Action">
+          <FilterSelect name="action" defaultValue={query.action ?? ""}>
             {ACTIONS.map((a) => (
               <option key={a.value} value={a.value}>
                 {a.label}
               </option>
             ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-muted">
-          Target id
-          <input name="target" defaultValue={query.target} maxLength={64} className={inputClass} />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-muted">
-          From (UTC)
-          <input type="date" name="from" defaultValue={query.from} className={inputClass} />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-muted">
-          To (UTC)
-          <input type="date" name="to" defaultValue={query.to} className={inputClass} />
-        </label>
-        <button type="submit" className={buttonClass("secondary")}>
-          Apply
-        </button>
-        <a href="/admin/audit-logs" className={buttonClass("ghost")}>
-          Reset
-        </a>
-      </form>
+          </FilterSelect>
+        </FilterField>
+        <FilterField label="Target id">
+          <FilterInput name="target" defaultValue={query.target} maxLength={64} />
+        </FilterField>
+        <FilterField label="From (UTC)" span="half">
+          <FilterInput type="date" name="from" defaultValue={query.from} />
+        </FilterField>
+        <FilterField label="To (UTC)" span="half">
+          <FilterInput type="date" name="to" defaultValue={query.to} />
+        </FilterField>
+      </FilterBar>
 
       <Card className="overflow-x-auto p-0">
         <table className="stack-table w-full min-w-[760px] text-left text-sm [--stack-table-inset:1rem]">

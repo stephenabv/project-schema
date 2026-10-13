@@ -9,11 +9,11 @@ type Metric = Exclude<keyof ActivityPoint, "day">;
 
 const SERIES: Record<Metric, { label: string; color: string }> = {
   taps: { label: "Taps", color: "var(--primary)" },
-  activePlayers: { label: "Active players", color: "#2563eb" },
-  newPlayers: { label: "New players", color: "#9333ea" },
+  activePlayers: { label: "Active players", color: "var(--chart-blue)" },
+  newPlayers: { label: "New players", color: "var(--chart-purple)" },
   coinsIssued: { label: "Virtual coins issued", color: "var(--primary)" },
-  missionsClaimed: { label: "Missions claimed", color: "#d97706" },
-  duplicateRequests: { label: "Duplicate requests", color: "#dc2626" },
+  missionsClaimed: { label: "Missions claimed", color: "var(--chart-amber)" },
+  duplicateRequests: { label: "Duplicate requests", color: "var(--chart-red)" },
 };
 
 /** Daily platform activity (UTC days) for the admin console. */
@@ -38,7 +38,12 @@ export function ActivityChart({ series, metrics, label }: { series: ActivityPoin
           <Tooltip
             formatter={(value, name) => [formatCount(Number(value)), String(name)]}
             labelFormatter={(day) => `${formatShortDay(String(day))} (UTC)`}
-            contentStyle={{ borderRadius: 12, border: "1px solid var(--border)" }}
+            contentStyle={{
+              borderRadius: 12,
+              border: "1px solid var(--border)",
+              background: "var(--surface)",
+              color: "var(--foreground)",
+            }}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           {metrics.map((metric) => (

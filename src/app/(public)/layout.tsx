@@ -1,5 +1,6 @@
 import { AccountLink } from "@/components/auth/account-link";
 import { Logo } from "@/components/layout/logo";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { ButtonLink } from "@/components/ui/button";
 
 export default function PublicLayout({ children }: LayoutProps<"/">) {
@@ -12,6 +13,7 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
             <ButtonLink href="/about" variant="ghost">
               About
             </ButtonLink>
+            <ThemeToggle />
             <AccountLink />
           </nav>
         </div>

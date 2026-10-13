@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { SplashScreen } from "@/components/layout/splash-screen";
+import { THEME_SCRIPT } from "@/lib/theme/theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +15,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#059669",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#059669" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1120" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -22,8 +26,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // The splash script sets data-splash on <html> before hydration.
+    // The theme and splash scripts set data-theme / data-splash on <html> before hydration.
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col font-sans">
         <SplashScreen />
         {children}

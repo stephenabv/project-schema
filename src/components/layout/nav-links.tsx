@@ -16,12 +16,15 @@ export const APP_NAV = [
   { href: "/wallet", label: "Wallet", icon: Wallet, mobile: true },
 ] as const;
 
-/** Desktop: inline links (icons only until lg). Mobile: fixed bottom tab bar. */
+/**
+ * Top (md and up): icon links, with a small label under each icon from lg so
+ * all eight fit beside the account buttons. Bottom (below md): fixed tab bar.
+ */
 export function NavLinks({ variant }: { variant: "top" | "bottom" }) {
   const pathname = usePathname();
 
   return (
-    <ul className={variant === "top" ? "hidden items-center gap-1 sm:flex" : "grid grid-cols-5"}>
+    <ul className={variant === "top" ? "hidden items-center gap-0.5 md:flex" : "grid grid-cols-5"}>
       {APP_NAV.filter((item) => variant === "top" || item.mobile).map(({ href, label, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (
@@ -29,9 +32,10 @@ export function NavLinks({ variant }: { variant: "top" | "bottom" }) {
             <Link
               href={href}
               aria-current={active ? "page" : undefined}
+              title={variant === "top" ? label : undefined}
               className={
                 variant === "top"
-                  ? `flex items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-medium lg:px-3 ${
+                  ? `flex flex-col items-center gap-0.5 rounded-xl px-2.5 py-2 text-[11px] font-medium leading-none lg:px-2 lg:py-1.5 ${
                       active ? "bg-success-surface text-success-text" : "text-muted hover:text-foreground"
                     }`
                   : `flex flex-col items-center gap-1 py-2 text-xs font-medium ${
@@ -40,7 +44,7 @@ export function NavLinks({ variant }: { variant: "top" | "bottom" }) {
               }
             >
               <Icon aria-hidden className="size-4" />
-              <span className={variant === "top" ? "sr-only lg:not-sr-only" : undefined}>{label}</span>
+              <span className={variant === "top" ? "sr-only lg:not-sr-only lg:whitespace-nowrap" : undefined}>{label}</span>
             </Link>
           </li>
         );
