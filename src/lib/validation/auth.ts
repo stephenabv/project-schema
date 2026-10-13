@@ -56,3 +56,18 @@ export function fieldErrorsOf(error: z.ZodError): FieldErrors {
   }
   return result;
 }
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password").max(72),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    path: ["confirmPassword"],
+    error: "Passwords do not match",
+  })
+  .refine((value) => value.password !== value.currentPassword, {
+    path: ["password"],
+    error: "Choose a password you are not already using",
+  });

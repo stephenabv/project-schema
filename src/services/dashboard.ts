@@ -1,10 +1,9 @@
 import "server-only";
 import { z } from "zod";
-import { InternalError } from "@/lib/errors";
-import { logger } from "@/lib/logger";
 import { toAppError } from "@/lib/supabase/errors";
 import type { AppSupabaseClient } from "@/lib/supabase/server";
 import type { DashboardSummary, RewardSeriesPoint } from "@/types/api";
+import { parseContract } from "./contract";
 
 export const DEFAULT_SERIES_DAYS = 14;
 
@@ -20,6 +19,7 @@ const summarySchema = z.object({
     rewardCoins: z.number().int().positive(),
     cooldownMs: z.number().int().nonnegative(),
     dailyLimit: z.number().int().positive(),
+    xpPerTap: z.number().int().nonnegative(),
   }),
   currency: z.literal("VC"),
   redeemable: z.literal(false),
@@ -34,21 +34,12 @@ export class DashboardService {
   async getSummary(): Promise<DashboardSummary> {
     const { data, error } = await this.db.rpc("get_dashboard_summary");
     if (error) throw toAppError(error, "get_dashboard_summary");
-    return this.parse(summarySchema, data, "get_dashboard_summary");
+    return parseContract(summarySchema, data, "get_dashboard_summary");
   }
 
   async getRewardSeries(days: number = DEFAULT_SERIES_DAYS): Promise<RewardSeriesPoint[]> {
     const { data, error } = await this.db.rpc("get_reward_series", { p_days: days });
     if (error) throw toAppError(error, "get_reward_series");
-    return this.parse(seriesSchema, data, "get_reward_series");
-  }
-
-  private parse<T>(schema: z.ZodType<T>, data: unknown, operation: string): T {
-    const parsed = schema.safeParse(data);
-    if (!parsed.success) {
-      logger.error("contract_violation", { operation });
-      throw new InternalError();
-    }
-    return parsed.data;
+    return parseContract(seriesSchema, data, "get_reward_series");
   }
 }

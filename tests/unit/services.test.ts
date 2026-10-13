@@ -16,6 +16,10 @@ const tapResult = {
   rewardCoins: 10,
   balanceCoins: 510,
   tapsToday: 51,
+  xpEarned: 1,
+  xpTotal: 51,
+  level: 1,
+  unlockedAchievements: [],
   currency: "VC",
   redeemable: false,
 };
@@ -130,7 +134,7 @@ describe("DashboardService", () => {
       actionsCompleted: 3,
       tapsToday: 3,
       lastTapAt: null,
-      policy: { rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000 },
+      policy: { rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1 },
       currency: "VC",
       redeemable: false,
     };

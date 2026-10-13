@@ -13,19 +13,24 @@ Stack: Next.js 16 (App Router, Cache Components) · React 19 · TypeScript (stri
 
 ## What is in this release
 
-This is the blueprint's recommended **vertical slice**: authenticated user → tap action → atomic virtual reward →
-persisted wallet → transaction history, plus the dashboard.
+The blueprint's vertical slice (authenticated user → tap → atomic virtual reward → persisted wallet → history →
+dashboard) plus **Phase 1** of the remaining modules: missions, XP and levels, badges, profile and account settings.
 
 | Area | Routes |
 | --- | --- |
 | Public | `/`, `/about` |
 | Auth | `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callback` |
-| App | `/dashboard`, `/earn`, `/wallet` |
-| API | `POST /api/earn/tap`, `GET /api/wallet`, `GET /api/transactions`, `GET /api/dashboard` |
+| App | `/dashboard`, `/earn`, `/missions`, `/achievements`, `/wallet`, `/profile`, `/settings` |
+| API | `POST /api/earn/tap`, `GET /api/wallet`, `GET /api/transactions`, `GET /api/dashboard`, `GET /api/tasks`, `POST /api/tasks/:id/claim`, `GET /api/achievements` |
 
-Missions, achievements, XP/levels, leaderboard, profile settings and the admin console (blueprint P0 items
-beyond the slice, plus P1/P2) are **not** built yet. The schema keeps room for them (`mission_reward` and
-`admin_adjustment` ledger types, `user_roles`).
+**Progression rules (all enforced in SQL).** Each accepted tap gives 1 XP; reaching level *L* takes
+`50 · L · (L − 1)` XP. Missions are daily (UTC day), weekly (ISO week, Monday UTC) or one-time; progress is computed
+from recorded activity and each mission pays once per period through `public.claim_task(task_id, idempotency_key)`.
+Badges unlock automatically inside the same transaction as the reward that reached them and pay a one-time bonus.
+Every payout is a ledger entry (`tap_reward`, `mission_reward`, `achievement_reward`).
+
+Delivery plan for the rest of the blueprint: Phase 2 admin console · Phase 3 streaks, leaderboard, cosmetic shop,
+notifications · Phase 4 idle generator, advanced analytics, scheduled publishing, feature flags, exports.
 
 ## Architecture
 
@@ -45,7 +50,8 @@ src/
   types/                database.ts (Supabase types) and api.ts (public contracts)
 supabase/
   migrations/           0001 schema · 0002 reward function · 0003 RLS/privileges · 0004 read models ·
-                        0005 provision pre-existing auth users
+                        0005 provision pre-existing auth users · 0006 progression (XP, missions, badges) ·
+                        0007 progression RLS, profile avatars and read models
 tests/
   unit/                 schemas, services, tap client, error mapping, HTTP helpers
   integration/api/      route handlers end to end with a fake auth boundary
@@ -71,6 +77,11 @@ numbers on screen always match what the server enforces.
 | `VE001` | tap cooldown | 429 + `Retry-After` | `COOLDOWN_ACTIVE` |
 | `VE002` | daily limit | 429 + `Retry-After` | `DAILY_LIMIT_REACHED` |
 | `VE003` | idempotency key reused for another action | 409 | `IDEMPOTENCY_CONFLICT` |
+| `VE004` | mission already claimed this period | 409 | `ALREADY_CLAIMED` |
+| `VE005` | mission objective not complete | 409 | `MISSION_INCOMPLETE` |
+| `VE010` | mission not published | 404 | `NOT_FOUND` |
+| `23505` | username taken | 409 | `USERNAME_TAKEN` |
+| `42501` | privilege denied | 403 | `FORBIDDEN` |
 | other | unexpected | 500 | `INTERNAL_ERROR` (details only in logs) |
 
 ## Getting started

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const TRANSACTION_TYPES = ["tap_reward", "mission_reward", "admin_adjustment"] as const;
+export const TRANSACTION_TYPES = ["tap_reward", "mission_reward", "achievement_reward", "admin_adjustment"] as const;
 
 const isoDate = z.iso.date("Use YYYY-MM-DD dates");
 

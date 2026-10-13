@@ -47,9 +47,25 @@ export class NotFoundError extends AppError {
   readonly code = "NOT_FOUND" as const;
 }
 
+export class ForbiddenError extends AppError {
+  readonly status = 403;
+  readonly code = "FORBIDDEN" as const;
+
+  constructor(message = "You do not have permission to do that") {
+    super(message);
+  }
+}
+
+/** The request conflicts with the current state (409). */
 export class ConflictError extends AppError {
   readonly status = 409;
-  readonly code = "IDEMPOTENCY_CONFLICT" as const;
+
+  constructor(
+    message: string,
+    readonly code: "IDEMPOTENCY_CONFLICT" | "ALREADY_CLAIMED" | "MISSION_INCOMPLETE" | "USERNAME_TAKEN" = "IDEMPOTENCY_CONFLICT",
+  ) {
+    super(message);
+  }
 }
 
 export class RateLimitError extends AppError {

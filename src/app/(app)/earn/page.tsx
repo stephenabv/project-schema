@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSessionOrRedirect } from "@/lib/auth/session";
 import { DashboardService } from "@/services/dashboard";
+import { ProgressionService } from "@/services/progression";
 
 export const metadata: Metadata = { title: "Earn" };
 
@@ -24,9 +25,18 @@ export default function EarnPage() {
 
 async function EarnContent() {
   const { supabase } = await getSessionOrRedirect("/earn");
-  const summary = await new DashboardService(supabase).getSummary();
+  const [summary, progression] = await Promise.all([
+    new DashboardService(supabase).getSummary(),
+    new ProgressionService(supabase).get(),
+  ]);
 
   return (
-    <TapEarner initialBalance={summary.balanceCoins} initialTapsToday={summary.tapsToday} policy={summary.policy} />
+    <TapEarner
+      initialBalance={summary.balanceCoins}
+      initialTapsToday={summary.tapsToday}
+      initialXp={progression.xpTotal}
+      initialLevel={progression.level}
+      policy={summary.policy}
+    />
   );
 }

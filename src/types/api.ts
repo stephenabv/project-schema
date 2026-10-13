@@ -11,13 +11,29 @@ export interface VirtualAmount {
   redeemable: false;
 }
 
-export interface TapResponse extends VirtualAmount {
+export interface UnlockedAchievement {
+  slug: string;
+  title: string;
+  icon: string;
+  rewardCoins: number;
+  xpReward: number;
+}
+
+/** XP, level and badges returned with every reward. */
+export interface ProgressDelta {
+  xpTotal: number;
+  level: number;
+  unlockedAchievements: UnlockedAchievement[];
+}
+
+export interface TapResponse extends VirtualAmount, ProgressDelta {
   success: true;
   duplicate: boolean;
   transactionId: string;
   rewardCoins: number;
   balanceCoins: number;
   tapsToday: number;
+  xpEarned: number;
 }
 
 export interface WalletResponse extends VirtualAmount {
@@ -46,6 +62,7 @@ export interface TapPolicy {
   rewardCoins: number;
   cooldownMs: number;
   dailyLimit: number;
+  xpPerTap: number;
 }
 
 export interface DashboardSummary extends VirtualAmount {
@@ -64,9 +81,85 @@ export interface RewardSeriesPoint {
   coins: number;
 }
 
+export type RewardBucket = "day" | "week" | "month";
+
+export interface RewardHistoryPoint {
+  periodStart: string;
+  coins: number;
+}
+
+export type MissionFrequency = "daily" | "weekly" | "once";
+export type MissionObjective = "taps" | "missions";
+
+export interface Mission {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  objectiveType: MissionObjective;
+  target: number;
+  progress: number;
+  rewardCoins: number;
+  xpReward: number;
+  frequency: MissionFrequency;
+  periodKey: string;
+  periodEndsAt: string | null;
+  claimed: boolean;
+  claimedAt: string | null;
+}
+
+export interface MissionsResponse extends VirtualAmount {
+  missions: Mission[];
+}
+
+export interface ClaimResponse extends VirtualAmount, ProgressDelta {
+  success: true;
+  duplicate: boolean;
+  transactionId: string;
+  taskId: string;
+  rewardCoins: number;
+  xpReward: number;
+  balanceCoins: number;
+}
+
+export type AchievementMetric = "total_taps" | "total_coins_earned" | "missions_completed" | "level";
+
+export interface Achievement {
+  slug: string;
+  title: string;
+  description: string;
+  icon: string;
+  metric: AchievementMetric;
+  threshold: number;
+  progress: number;
+  rewardCoins: number;
+  xpReward: number;
+  unlocked: boolean;
+  unlockedAt: string | null;
+}
+
+export interface Progression {
+  xpTotal: number;
+  level: number;
+  levelStartXp: number;
+  nextLevelXp: number;
+  totalTaps: number;
+  totalCoinsEarned: number;
+  missionsCompleted: number;
+  achievementsUnlocked: number;
+  achievementsTotal: number;
+  nextAchievement: Achievement | null;
+}
+
+export interface AchievementsResponse {
+  achievements: Achievement[];
+  progression: Progression;
+}
+
 export interface DashboardResponse {
   summary: DashboardSummary;
   series: RewardSeriesPoint[];
+  progression: Progression;
 }
 
 export const API_ERROR_CODES = [
@@ -77,6 +170,10 @@ export const API_ERROR_CODES = [
   "COOLDOWN_ACTIVE",
   "DAILY_LIMIT_REACHED",
   "IDEMPOTENCY_CONFLICT",
+  "ALREADY_CLAIMED",
+  "MISSION_INCOMPLETE",
+  "USERNAME_TAKEN",
+  "FORBIDDEN",
   "INTERNAL_ERROR",
 ] as const;
 

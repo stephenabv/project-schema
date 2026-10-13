@@ -2,6 +2,7 @@ import {
   AppError,
   AuthenticationError,
   ConflictError,
+  ForbiddenError,
   InternalError,
   NotFoundError,
   RateLimitError,
@@ -39,6 +40,18 @@ export function toAppError(error: DatabaseError, operation: string): AppError {
       );
     case "VE003":
       return new ConflictError("This request key was already used for a different action");
+    case "VE004":
+      return new ConflictError("Mission already claimed for this period", "ALREADY_CLAIMED");
+    case "VE005":
+      return new ConflictError("Mission objective not complete yet", "MISSION_INCOMPLETE");
+    case "VE010":
+      return new NotFoundError("This mission is not available");
+    case "23505": // unique_violation (for example a taken username)
+      return new ConflictError("That value is already taken", "USERNAME_TAKEN");
+    case "23514": // check_violation
+      return new ValidationError("The request contained invalid values");
+    case "42501":
+      return new ForbiddenError();
     default:
       logger.error("database_operation_failed", { operation, code: error.code ?? "unknown" });
       return new InternalError();

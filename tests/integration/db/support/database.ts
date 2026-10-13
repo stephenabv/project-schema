@@ -106,6 +106,10 @@ export interface TapResult {
   rewardCoins: number;
   balanceCoins: number;
   tapsToday: number;
+  xpEarned: number;
+  xpTotal: number;
+  level: number;
+  unlockedAchievements: { slug: string; rewardCoins: number }[];
   currency: "VC";
   redeemable: false;
 }
@@ -154,4 +158,12 @@ export function sqlState(error: unknown): string | undefined {
   return typeof error === "object" && error !== null && "code" in error
     ? String((error as { code: unknown }).code)
     : undefined;
+}
+
+/**
+ * Turns off achievement rewards so a suite can assert tap and ledger
+ * mechanics in isolation (achievements pay their own ledger entries).
+ */
+export async function disableAchievements(pool: Pool): Promise<void> {
+  await pool.query("update public.achievements set is_active = false");
 }

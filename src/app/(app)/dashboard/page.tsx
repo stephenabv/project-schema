@@ -1,20 +1,24 @@
-import { CalendarCheck, Coins, Hand, TrendingUp } from "lucide-react";
+import { Award, CalendarCheck, Coins, Hand, Target, TrendingUp } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { RangeTabs } from "@/components/dashboard/range-tabs";
 import { RewardChart } from "@/components/dashboard/reward-chart";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
+import { LevelCard } from "@/components/progression/level-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { LoadingCard, Skeleton } from "@/components/ui/skeleton";
 import { VirtualBadge } from "@/components/ui/virtual-badge";
 import { getSessionOrRedirect } from "@/lib/auth/session";
 import { formatCoins, formatCount } from "@/lib/formatting/coins";
+import { REWARD_RANGES, rewardRangeSchema } from "@/lib/validation/progression";
 import { DashboardService } from "@/services/dashboard";
+import { ProgressionService } from "@/services/progression";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
-export default function DashboardPage() {
+export default function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
   return (
     <>
       <PageHeader
@@ -23,16 +27,22 @@ export default function DashboardPage() {
         action={<ButtonLink href="/earn">Start tapping</ButtonLink>}
       />
       <Suspense fallback={<DashboardSkeleton />}>
-        <DashboardContent />
+        <DashboardContent searchParams={searchParams} />
       </Suspense>
     </>
   );
 }
 
-async function DashboardContent() {
+async function DashboardContent({ searchParams }: Pick<PageProps<"/dashboard">, "searchParams">) {
   const { supabase } = await getSessionOrRedirect("/dashboard");
-  const dashboard = new DashboardService(supabase);
-  const [summary, series] = await Promise.all([dashboard.getSummary(), dashboard.getRewardSeries()]);
+  const range = rewardRangeSchema.parse((await searchParams).range);
+  const progressionService = new ProgressionService(supabase);
+  const [summary, progression, series] = await Promise.all([
+    new DashboardService(supabase).getSummary(),
+    progressionService.get(),
+    progressionService.getRewardHistory(range),
+  ]);
+  const { bucket, label } = REWARD_RANGES[range];
 
   return (
     <div className="flex flex-col gap-4">
@@ -45,7 +55,7 @@ async function DashboardContent() {
         <p className="text-xs text-muted">Simulated coins. No monetary value, cannot be withdrawn or exchanged.</p>
       </Card>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard label="Total earned" value={formatCoins(summary.totalEarnedCoins)} icon={TrendingUp} />
         <StatCard label="Today (UTC)" value={formatCoins(summary.todayEarnedCoins)} icon={CalendarCheck} />
         <StatCard label="Taps completed" value={formatCount(summary.actionsCompleted)} icon={Hand} />
@@ -55,13 +65,22 @@ async function DashboardContent() {
           icon={Coins}
           note={`of ${formatCount(summary.policy.dailyLimit)} daily`}
         />
+        <StatCard label="Missions completed" value={formatCount(progression.missionsCompleted)} icon={Target} />
+        <StatCard
+          label="Badges"
+          value={`${progression.achievementsUnlocked} / ${progression.achievementsTotal}`}
+          icon={Award}
+        />
       </div>
 
+      <LevelCard progression={progression} />
+
       <Card>
-        <div className="mb-4 flex items-center justify-between">
-          <CardTitle>Daily virtual rewards · last {series.length} days</CardTitle>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <CardTitle>Virtual rewards · last {label}</CardTitle>
+          <RangeTabs active={range} />
         </div>
-        <RewardChart series={series} />
+        <RewardChart series={series} bucket={bucket} />
       </Card>
     </div>
   );
@@ -71,8 +90,8 @@ function DashboardSkeleton() {
   return (
     <div className="flex flex-col gap-4">
       <LoadingCard label="Loading balance" />
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {Array.from({ length: 4 }, (_, i) => (
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        {Array.from({ length: 6 }, (_, i) => (
           <LoadingCard key={i} label="Loading statistic" />
         ))}
       </div>

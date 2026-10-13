@@ -31,6 +31,10 @@ const tapResult = {
   rewardCoins: 10,
   balanceCoins: 510,
   tapsToday: 51,
+  xpEarned: 1,
+  xpTotal: 51,
+  level: 1,
+  unlockedAchievements: [],
   currency: "VC",
   redeemable: false,
 };
@@ -161,5 +165,72 @@ describe("GET /api/dashboard", () => {
   it("returns 401 when signed out", async () => {
     currentUser = null;
     expect((await dashboard()).status).toBe(401);
+  });
+});
+
+describe("mission and badge routes", async () => {
+  const { GET: tasks } = await import("@/app/api/tasks/route");
+  const { POST: claim } = await import("@/app/api/tasks/[id]/claim/route");
+  const { GET: achievements } = await import("@/app/api/achievements/route");
+  const { mission, claimResult, achievement, progression } = await import("../../unit/support/progression-fixtures");
+  const TASK = mission.id;
+
+  const claimCall = (id: string, body: unknown) =>
+    claim(
+      new NextRequest(`http://localhost/api/tasks/${id}/claim`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }),
+      { params: Promise.resolve({ id }) },
+    );
+
+  it("lists missions labelled as virtual", async () => {
+    useDatabase({ list_missions: { data: [mission], error: null } });
+    const response = await tasks();
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ missions: [mission], currency: "VC", redeemable: false });
+  });
+
+  it("claims a mission", async () => {
+    useDatabase({ claim_task: { data: claimResult, error: null } });
+    const response = await claimCall(TASK, { idempotencyKey: KEY });
+    expect(response.status).toBe(200);
+    expect(fake.rpc).toHaveBeenCalledWith("claim_task", { p_task_id: TASK, p_idempotency_key: KEY });
+  });
+
+  it("returns 404 for a malformed mission id without calling the database", async () => {
+    const response = await claimCall("not-a-uuid", { idempotencyKey: KEY });
+    expect(response.status).toBe(404);
+    expect(fake.rpc).not.toHaveBeenCalled();
+  });
+
+  it("rejects client-supplied reward fields", async () => {
+    const response = await claimCall(TASK, { idempotencyKey: KEY, rewardCoins: 1_000_000 });
+    expect(response.status).toBe(400);
+    expect(fake.rpc).not.toHaveBeenCalled();
+  });
+
+  it("returns 409 when already claimed", async () => {
+    useDatabase({ claim_task: { data: null, error: { code: "VE004" } } });
+    const response = await claimCall(TASK, { idempotencyKey: KEY });
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({ code: "ALREADY_CLAIMED" });
+  });
+
+  it("requires authentication to claim", async () => {
+    currentUser = null;
+    const response = await claimCall(TASK, { idempotencyKey: KEY });
+    expect(response.status).toBe(401);
+  });
+
+  it("returns badges with progression", async () => {
+    useDatabase({
+      list_achievements: { data: [achievement], error: null },
+      get_progression: { data: progression, error: null },
+    });
+    const response = await achievements();
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ achievements: [achievement], progression });
   });
 });
