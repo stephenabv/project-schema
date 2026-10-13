@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Avatar } from "@/components/profile/avatar";
 import { ProfileForm } from "@/components/profile/profile-form";
-import { ButtonLink } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSessionOrRedirect } from "@/lib/auth/session";
@@ -66,20 +65,6 @@ async function ProfileContent() {
             </div>
           ))}
         </dl>
-        <div className="flex flex-wrap gap-2">
-          <ButtonLink href="/shop" variant="secondary">
-            Shop cosmetics
-          </ButtonLink>
-          <ButtonLink href="/leaderboard" variant="secondary">
-            Leaderboard
-          </ButtonLink>
-          <ButtonLink href="/robots" variant="secondary">
-            Robot Shop
-          </ButtonLink>
-          <ButtonLink href="/generator" variant="secondary">
-            Generator
-          </ButtonLink>
-        </div>
       </Card>
     </div>
   );

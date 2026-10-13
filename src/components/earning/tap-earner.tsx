@@ -149,9 +149,9 @@ export function TapEarner({
             <span key={pulseKey} className="animate-tap-pulse flex flex-col items-center gap-2">
               <Hand aria-hidden className="size-10" />
               <span className="text-lg font-semibold">
-                {status.kind === "pending" ? "Recording…" : status.kind === "cooldown" ? "Cooling down" : "Tap to earn"}
+                {status.kind === "pending" ? "Adding…" : status.kind === "cooldown" ? "One moment…" : "Tap to earn"}
               </span>
-              <span className="text-xs opacity-90">+{policy.rewardCoins} VC per accepted tap</span>
+              <span className="text-xs opacity-90">+{policy.rewardCoins} VC per tap</span>
             </span>
           </button>
           {floats.map((f) => (
@@ -167,8 +167,7 @@ export function TapEarner({
         </div>
 
         <p id="tap-help" className="max-w-sm text-center text-xs text-muted">
-          One accepted tap per {policy.cooldownMs / 1000} second, at most {formatCount(policy.perMinuteLimit)} a minute and {formatCount(policy.dailyLimit)} per UTC day. Robots earn far more over time.
-          Rewards are recorded by the server.
+          Tap up to {formatCount(policy.dailyLimit)} times a day. Want to earn more? Robots keep earning even while you are away.
         </p>
 
         <div aria-live="polite" className="sr-only">
@@ -184,7 +183,7 @@ export function TapEarner({
           </Alert>
         ) : null}
         {status.kind === "limit" ? (
-          <Alert tone="warning">Daily limit reached. Your taps reset at midnight UTC.</Alert>
+          <Alert tone="warning">You have reached today&rsquo;s tap limit. Come back tomorrow for more.</Alert>
         ) : null}
         {status.kind === "error" ? <Alert tone="danger">{status.message}</Alert> : null}
         {status.kind === "signed_out" ? (

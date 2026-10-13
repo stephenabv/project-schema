@@ -18,7 +18,7 @@ import { RequestTimeline, StatusPill } from "./request-status";
 type Notice = { tone: "success" | "warning" | "danger"; text: string; signedOut?: boolean };
 
 const ERROR_TEXT: Record<string, string> = {
-  RATE_CHANGED: "The exchange rate changed while you were reviewing. The new rate is shown now, so please check the estimate again.",
+  RATE_CHANGED: "The exchange rate just changed. Please check the new amount before you submit.",
   AMOUNT_OUT_OF_RANGE: "That amount is outside the allowed range.",
   INSUFFICIENT_BALANCE: "You do not have enough eligible VC for that amount.",
   FEATURE_DISABLED: "Conversion is not available right now.",
@@ -97,7 +97,7 @@ export function ConversionPanel({
         setReviewing(false);
         setNotice({
           tone: "success",
-          text: `Request ${outcome.data.reference} submitted for ${formatCoins(outcome.data.coins)}. Those VC are reserved until it is reviewed.`,
+          text: `Request ${outcome.data.reference} submitted for ${formatCoins(outcome.data.coins)}. Those coins are set aside while we review it.`,
         });
         refresh();
       } else {
@@ -116,7 +116,7 @@ export function ConversionPanel({
     try {
       const outcome = await client.cancelConversion(conversion.id);
       if (outcome.kind === "success") {
-        setNotice({ tone: "success", text: `Request ${conversion.reference} was cancelled and its VC released.` });
+        setNotice({ tone: "success", text: `Request ${conversion.reference} was cancelled and the coins are back in your balance.` });
         refresh();
       } else {
         report(outcome);
@@ -162,8 +162,8 @@ export function ConversionPanel({
                 <dd className="text-right tabular-nums">{rate ? formatRate(rate.rateCoins, rate.rateCentavos) : null}</dd>
               </dl>
               <p className="text-xs text-muted">
-                The VC are reserved as soon as you submit. If the request is rejected or you cancel it while it is pending,
-                they return to your balance. Pesos are only credited once an admin completes the request, usually within{" "}
+                Your coins are set aside once you submit. If you cancel or the request is declined, they go back to your
+                balance. Your pesos are added once we approve the request, usually within{" "}
                 {formatCount(policy.processingDays)} days.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -198,7 +198,6 @@ export function ConversionPanel({
               />
               <p className="text-sm text-muted">
                 Estimated: <span className="font-semibold text-foreground tabular-nums">{formatPhp(estimate)}</span>
-                <span className="text-xs"> (rounded down to the centavo)</span>
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button type="submit" disabled={!valid || refreshing}>
@@ -221,12 +220,12 @@ export function ConversionPanel({
             <CardTitle>Eligible to convert</CardTitle>
             <p className="text-2xl font-bold tabular-nums">{formatCoins(coins.eligibleCoins)}</p>
             <VirtualBadge />
-            <p className="text-xs text-muted">{formatCoins(coins.reservedCoins)} reserved by open requests.</p>
+            <p className="text-xs text-muted">{formatCoins(coins.reservedCoins)} set aside for pending requests.</p>
           </Card>
           <Card className="flex flex-col gap-2">
             <CardTitle>Converted pesos</CardTitle>
             <p className="text-2xl font-bold tabular-nums">{formatPhp(overview.php.availableCentavos)}</p>
-            <p className="text-xs text-muted">Available for a payout request after conversion is completed.</p>
+            <p className="text-xs text-muted">Ready to request as a payout.</p>
             <ButtonLink href="/payouts" variant="secondary">
               Payouts
             </ButtonLink>

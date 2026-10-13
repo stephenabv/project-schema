@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Exchange" };
 export default function ExchangePage() {
   return (
     <>
-      <PageHeader title="Exchange" description="Request to convert virtual coins to Philippine pesos when the program is open." />
+      <PageHeader title="Exchange" description="Turn your virtual coins into Philippine pesos." />
       <div className="flex flex-col gap-4">
         <Disclosure compact />
         <Suspense fallback={<Skeleton className="h-96" />}>

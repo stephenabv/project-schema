@@ -16,10 +16,10 @@ export function LedgerFilters({ type, from, to }: { type?: string; from?: string
           ))}
         </FilterSelect>
       </FilterField>
-      <FilterField label="From (UTC)" span="half">
+      <FilterField label="From" span="half">
         <FilterInput type="date" name="from" defaultValue={from} />
       </FilterField>
-      <FilterField label="To (UTC)" span="half">
+      <FilterField label="To" span="half">
         <FilterInput type="date" name="to" defaultValue={to} />
       </FilterField>
     </FilterBar>

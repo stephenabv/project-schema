@@ -13,7 +13,7 @@ export default function MissionsPage() {
     <>
       <PageHeader
         title="Missions"
-        description="Complete goals to claim bonus virtual coins and XP. Daily missions reset at midnight UTC, weekly ones on Monday."
+        description="Complete goals to claim bonus virtual coins and XP. Daily missions reset every day and weekly ones every Monday."
       />
       <Suspense fallback={<Skeleton className="h-96" />}>
         <MissionsContent />

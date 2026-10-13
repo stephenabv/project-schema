@@ -14,7 +14,6 @@ import { LedgerTable } from "@/components/wallet/ledger-table";
 import { getSessionOrRedirect } from "@/lib/auth/session";
 import { ValidationError } from "@/lib/errors";
 import { formatCoins } from "@/lib/formatting/coins";
-import { formatDateTimeUtc } from "@/lib/formatting/dates";
 import type { EarningsBreakdown } from "@/lib/validation/redemption";
 import { queryRecord, transactionQuerySchema, type TransactionQuery } from "@/lib/validation/transactions";
 import { RedemptionService } from "@/services/redemption";
@@ -25,7 +24,7 @@ export const metadata: Metadata = { title: "Wallet" };
 export default function WalletPage({ searchParams }: PageProps<"/wallet">) {
   return (
     <>
-      <PageHeader title="Virtual wallet" description="Your virtual coin balance and every recorded activity." />
+      <PageHeader title="Wallet" description="Your coin balance and everything you have earned and spent." />
       <div className="flex flex-col gap-4">
         <Disclosure compact />
         <Suspense fallback={<WalletSkeleton />}>
@@ -53,9 +52,8 @@ async function WalletContent({ searchParams }: { searchParams: PageProps<"/walle
           <VirtualBadge />
         </div>
         <p className="text-4xl font-bold tabular-nums">{formatCoins(balance.balanceCoins)}</p>
-        <p className="text-xs text-muted">Last updated {formatDateTimeUtc(balance.updatedAt)}</p>
         {breakdown.reservedCoins > 0 ? (
-          <p className="text-xs text-muted">{formatCoins(breakdown.reservedCoins)} reserved by open conversion requests.</p>
+          <p className="text-xs text-muted">{formatCoins(breakdown.reservedCoins)} set aside for your pending exchange requests.</p>
         ) : null}
         {showRedemptionLinks(breakdown) ? (
           <div className="flex flex-wrap gap-2 pt-1">
@@ -127,7 +125,7 @@ async function Ledger({
   );
 }
 
-/** Conversion links appear only while the program is open or the player still has requests in it. */
+/** Exchange links appear only while cash-out is open or the player still has requests in it. */
 function showRedemptionLinks(b: EarningsBreakdown): boolean {
   return b.redemptionEnabled || b.reservedCoins > 0 || b.approvedCentavos > 0 || b.pendingPayoutCentavos > 0 || b.paidCentavos > 0;
 }

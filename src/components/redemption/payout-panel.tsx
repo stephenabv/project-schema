@@ -116,7 +116,7 @@ export function PayoutPanel({
         setReviewing(false);
         setNotice({
           tone: "success",
-          text: `Payout request ${outcome.data.reference} for ${formatPhp(outcome.data.amountCentavos)} was submitted. It is not paid yet: an admin will review it.`,
+          text: `Payout request ${outcome.data.reference} for ${formatPhp(outcome.data.amountCentavos)} was submitted. We will review it and send your money once it is approved.`,
         });
         refresh();
       } else {
@@ -135,7 +135,7 @@ export function PayoutPanel({
     try {
       const outcome = await client.cancelPayout(payout.id);
       if (outcome.kind === "success") {
-        setNotice({ tone: "success", text: `Payout request ${payout.reference} was cancelled and the amount released.` });
+        setNotice({ tone: "success", text: `Payout request ${payout.reference} was cancelled and the amount is back in your balance.` });
         refresh();
       } else {
         report(outcome);
@@ -161,9 +161,9 @@ export function PayoutPanel({
       </div>
 
       <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Balance label="Available" value={php.availableCentavos} hint="Converted and ready to request" />
-        <Balance label="In payout requests" value={php.reservedCentavos} hint="Held until the request ends" />
-        <Balance label="Paid out" value={php.paidCentavos} hint="Confirmed paid by an admin" />
+        <Balance label="Available" value={php.availableCentavos} hint="Ready to request" />
+        <Balance label="In payout requests" value={php.reservedCentavos} hint="Waiting to be sent" />
+        <Balance label="Paid out" value={php.paidCentavos} hint="Already sent to you" />
       </dl>
 
       {readOnly ? null : overview.methods.length === 0 ? (
@@ -184,7 +184,7 @@ export function PayoutPanel({
                 <dd className="text-right font-mono">{accountNumber.trim()}</dd>
               </dl>
               <p className="text-xs text-muted">
-                Check these details carefully. The amount is held while the request is reviewed, usually within{" "}
+                Please double-check your details. We usually send payouts within{" "}
                 {formatCount(policy.processingDays)} days. You can cancel while it is pending.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -250,7 +250,7 @@ export function PayoutPanel({
                   resetKey();
                 }}
                 error={numberError}
-                hint="Stored encrypted. Only the last four digits are shown back to you."
+                hint="Kept private. We only show the last four digits."
               />
               <div className="sm:col-span-2">
                 <Button type="submit" disabled={!valid || refreshing}>
