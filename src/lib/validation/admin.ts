@@ -57,6 +57,7 @@ export const tapPolicyInputSchema = z.strictObject({
   cooldownMs: z.coerce.number().int("Use a whole number").min(250, "At least 250 ms").max(60_000),
   dailyLimit: z.coerce.number().int("Use a whole number").min(1).max(100_000),
   xpPerTap: z.coerce.number().int("Use a whole number").min(0).max(100),
+  perMinuteLimit: z.coerce.number().int("Use a whole number").min(1).max(240),
 });
 export type TapPolicyInput = z.infer<typeof tapPolicyInputSchema>;
 
@@ -244,6 +245,7 @@ const tapPolicySchema = z.object({
   cooldownMs: count,
   dailyLimit: z.number().int().positive(),
   xpPerTap: count,
+  perMinuteLimit: z.number().int().positive(),
 });
 
 export const adminSettingsSchema = z.object({

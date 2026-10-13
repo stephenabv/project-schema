@@ -7,7 +7,7 @@ const count = z.number().int().nonnegative();
 // Feature flags and maintenance mode
 // ---------------------------------------------------------------------------
 
-export const FEATURE_FLAGS = ["dailyBonus", "leaderboard", "shop", "idleGenerator"] as const;
+export const FEATURE_FLAGS = ["dailyBonus", "leaderboard", "shop", "idleGenerator", "robots"] as const;
 export type FeatureFlag = (typeof FEATURE_FLAGS)[number];
 
 export const FEATURE_LABELS: Record<FeatureFlag, string> = {
@@ -15,6 +15,7 @@ export const FEATURE_LABELS: Record<FeatureFlag, string> = {
   leaderboard: "Leaderboards",
   shop: "Cosmetic shop",
   idleGenerator: "Idle generator",
+  robots: "Robot workers",
 };
 
 export const featureFlagsSchema = z.object({
@@ -22,6 +23,7 @@ export const featureFlagsSchema = z.object({
   leaderboard: z.boolean(),
   shop: z.boolean(),
   idleGenerator: z.boolean(),
+  robots: z.boolean(),
 });
 export type FeatureFlags = z.infer<typeof featureFlagsSchema>;
 
@@ -33,7 +35,7 @@ export type AppConfig = z.infer<typeof appConfigSchema>;
 
 /** Used when the configuration cannot be read: everything on, no maintenance banner. */
 export const DEFAULT_APP_CONFIG: AppConfig = {
-  flags: { dailyBonus: true, leaderboard: true, shop: true, idleGenerator: true },
+  flags: { dailyBonus: true, leaderboard: true, shop: true, idleGenerator: true, robots: true },
   maintenance: { enabled: false, message: "" },
 };
 
@@ -164,5 +166,5 @@ export const engagementSummarySchema = z.object({
 });
 export type EngagementSummary = z.infer<typeof engagementSummarySchema>;
 
-export const EXPORT_DATASETS = ["users", "audit-logs", "economy"] as const;
+export const EXPORT_DATASETS = ["users", "audit-logs", "economy", "conversions", "payouts"] as const;
 export type ExportDataset = (typeof EXPORT_DATASETS)[number];

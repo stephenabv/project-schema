@@ -7,6 +7,7 @@ import {
   ForbiddenError,
   InternalError,
   MaintenanceError,
+  NotConfiguredError,
   NotFoundError,
   RateLimitError,
   ValidationError,
@@ -67,6 +68,20 @@ export function toAppError(error: DatabaseError, operation: string): AppError {
       return new NotFoundError("Record not found");
     case "VE013":
       return new ConflictError("You already own this item", "ALREADY_OWNED");
+    case "VE016":
+      return new RateLimitError("TAP_RATE_LIMITED", "Too many taps this minute. Take a short break.", 30);
+    case "VE017":
+      return new ConflictError("You have reached the robot limit for that", "LIMIT_REACHED");
+    case "VE018":
+      return new ConflictError("The exchange rate changed. Review the new amount and confirm again.", "RATE_CHANGED");
+    case "VE019":
+      return new ConflictError("That amount is outside the allowed minimum and maximum", "AMOUNT_OUT_OF_RANGE");
+    case "VE020":
+      return new ConflictError("This request can no longer be changed that way", "INVALID_STATUS");
+    case "VE021":
+      return new ConflictError("This is a large change. Confirm it explicitly to continue.", "CONFIRMATION_REQUIRED");
+    case "VE022":
+      return new NotConfiguredError("Set an exchange rate and activate a payout method first.");
     case "23505": // unique_violation (a taken username or slug)
       return new ConflictError("That value is already taken", "ALREADY_EXISTS");
     case "23502": // not_null_violation

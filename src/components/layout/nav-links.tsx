@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Factory, Hand, LayoutDashboard, ShoppingBag, Target, Trophy, Wallet } from "lucide-react";
+import { Award, Bot, Factory, Hand, LayoutDashboard, ShoppingBag, Target, Trophy, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 export const APP_NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, mobile: true },
   { href: "/earn", label: "Earn", icon: Hand, mobile: true },
+  { href: "/robots", label: "Robots", icon: Bot, mobile: false },
   { href: "/generator", label: "Generator", icon: Factory, mobile: false },
   { href: "/missions", label: "Missions", icon: Target, mobile: true },
   { href: "/achievements", label: "Badges", icon: Award, mobile: false },
@@ -18,7 +19,7 @@ export const APP_NAV = [
 
 /**
  * Top (md and up): icon links, with a small label under each icon from lg so
- * all eight fit beside the account buttons. Bottom (below md): fixed tab bar.
+ * all nine fit beside the account buttons. Bottom (below md): fixed tab bar.
  */
 export function NavLinks({ variant }: { variant: "top" | "bottom" }) {
   const pathname = usePathname();

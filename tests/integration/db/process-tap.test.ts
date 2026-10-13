@@ -28,26 +28,26 @@ describe.skipIf(!hasDatabase)("process_tap", () => {
     await db?.drop();
   });
 
-  it("credits exactly 10 VC per accepted tap and records a ledger entry", async () => {
+  it("credits exactly the default 2 VC per accepted tap and records a ledger entry", async () => {
     const user = await createUser(db.pool);
     const result = await tap(db.pool, user);
 
     expect(result).toMatchObject({
       success: true,
       duplicate: false,
-      rewardCoins: 10,
-      balanceCoins: 10,
+      rewardCoins: 2,
+      balanceCoins: 2,
       tapsToday: 1,
       currency: "VC",
       redeemable: false,
     });
-    expect(await balanceOf(db.pool, user)).toBe(10);
+    expect(await balanceOf(db.pool, user)).toBe(2);
 
     const { rows } = await db.pool.query(
       "select type, source_type, amount_coins::int as amount from public.transactions where id = $1",
       [result.transactionId],
     );
-    expect(rows[0]).toEqual({ type: "tap_reward", source_type: "tap", amount: 10 });
+    expect(rows[0]).toEqual({ type: "tap_reward", source_type: "tap", amount: 2 });
   });
 
   it("does not reward the same idempotency key twice", async () => {
@@ -59,7 +59,7 @@ describe.skipIf(!hasDatabase)("process_tap", () => {
 
     expect(replay.duplicate).toBe(true);
     expect(replay.transactionId).toBe(first.transactionId);
-    expect(replay.balanceCoins).toBe(10);
+    expect(replay.balanceCoins).toBe(2);
     expect(await ledgerCount(db.pool, user)).toBe(1);
   });
 
@@ -70,10 +70,10 @@ describe.skipIf(!hasDatabase)("process_tap", () => {
 
     const error = await tap(db.pool, user).catch((e: unknown) => e);
     expect(sqlState(error)).toBe("VE001");
-    expect(await balanceOf(db.pool, user)).toBe(10);
+    expect(await balanceOf(db.pool, user)).toBe(2);
 
     await clearCooldown(db.pool, user);
-    expect((await tap(db.pool, user)).balanceCoins).toBe(20);
+    expect((await tap(db.pool, user)).balanceCoins).toBe(4);
   });
 
   it("rejects taps once the daily limit is reached", async () => {
@@ -103,7 +103,7 @@ describe.skipIf(!hasDatabase)("process_tap", () => {
 
     const result = await tap(db.pool, user);
     expect(result.tapsToday).toBe(1);
-    expect(result.balanceCoins).toBe(10);
+    expect(result.balanceCoins).toBe(2);
   });
 
   it("requires an authenticated caller", async () => {
@@ -170,7 +170,7 @@ describe.skipIf(!hasDatabase)("process_tap", () => {
       expect(results.filter((r) => !r.duplicate)).toHaveLength(1);
       expect(new Set(results.map((r) => r.transactionId)).size).toBe(1);
       expect(await ledgerCount(db.pool, user)).toBe(1);
-      expect(await balanceOf(db.pool, user)).toBe(10);
+      expect(await balanceOf(db.pool, user)).toBe(2);
     });
 
     it("accepts only one of a burst of different requests within the cooldown", async () => {
@@ -183,7 +183,7 @@ describe.skipIf(!hasDatabase)("process_tap", () => {
       for (const r of rejected) {
         expect(sqlState((r as PromiseRejectedResult).reason)).toBe("VE001");
       }
-      expect(await balanceOf(db.pool, user)).toBe(10);
+      expect(await balanceOf(db.pool, user)).toBe(2);
     });
 
     it("keeps the wallet reconciled with the ledger", async () => {
@@ -193,7 +193,7 @@ describe.skipIf(!hasDatabase)("process_tap", () => {
         await Promise.allSettled([tap(db.pool, user), tap(db.pool, user), tap(db.pool, user)]);
       }
       expect(await balanceOf(db.pool, user)).toBe(await ledgerSum(db.pool, user));
-      expect(await balanceOf(db.pool, user)).toBe(50);
+      expect(await balanceOf(db.pool, user)).toBe(10);
     });
   });
 });

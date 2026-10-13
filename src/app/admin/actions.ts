@@ -90,7 +90,7 @@ export async function saveAchievement(_prev: FormState, formData: FormData): Pro
 }
 
 export async function updateTapPolicy(_prev: FormState, formData: FormData): Promise<FormState> {
-  const echo = values(formData, ["rewardCoins", "cooldownMs", "dailyLimit", "xpPerTap"]);
+  const echo = values(formData, ["rewardCoins", "cooldownMs", "dailyLimit", "xpPerTap", "perMinuteLimit"]);
   const parsed = tapPolicyInputSchema.safeParse(echo);
   const failure = invalid(parsed, echo);
   if (failure || !parsed.success) return failure!;

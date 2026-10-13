@@ -156,7 +156,7 @@ describe("admin API", () => {
   });
 
   it("updates the tap policy", async () => {
-    const policy = { rewardCoins: 12, cooldownMs: 800, dailyLimit: 1500, xpPerTap: 2 };
+    const policy = { rewardCoins: 3, cooldownMs: 800, dailyLimit: 600, xpPerTap: 2, perMinuteLimit: 50 };
     useDatabase({ ve_admin_update_tap_policy: { data: policy, error: null } });
     const response = await updateSettings(jsonRequest("http://localhost/api/admin/settings", "PATCH", policy));
     expect(response.status).toBe(200);

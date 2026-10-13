@@ -8,6 +8,10 @@ export const TRANSACTION_TYPES = [
   "shop_purchase",
   "idle_reward",
   "generator_upgrade",
+  "robot_purchase",
+  "robot_earning",
+  "conversion_hold",
+  "conversion_release",
   "admin_adjustment",
 ] as const;
 

@@ -4,7 +4,7 @@ import { apiHandler, json } from "@/lib/http/api";
 import { featureFlagsSchema } from "@/lib/validation/operations";
 import { AdminService } from "@/services/admin";
 
-/** PUT /api/admin/settings/flags { dailyBonus, leaderboard, shop, idleGenerator } (all booleans, audited). */
+/** PUT /api/admin/settings/flags { dailyBonus, leaderboard, shop, idleGenerator, robots } (all booleans, audited). */
 export const PUT = apiHandler("PUT /api/admin/settings/flags", async (request: Request) => {
   const { supabase } = await requireAdmin();
   const flags = await readAdminBody(request, featureFlagsSchema.strict());

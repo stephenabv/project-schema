@@ -8,6 +8,10 @@ const LABELS: Record<TransactionType, string> = {
   shop_purchase: "Shop purchase",
   idle_reward: "Generator output",
   generator_upgrade: "Generator upgrade",
+  robot_purchase: "Robot purchase",
+  robot_earning: "Robot earnings",
+  conversion_hold: "Reserved for conversion",
+  conversion_release: "Conversion released",
   admin_adjustment: "Adjustment",
 };
 

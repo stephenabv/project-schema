@@ -10,7 +10,7 @@ export const GET = apiHandler("GET /api/admin/settings", async () => {
   return json(await new AdminService(supabase).getSettings());
 });
 
-/** PATCH /api/admin/settings { rewardCoins, cooldownMs, dailyLimit, xpPerTap } */
+/** PATCH /api/admin/settings { rewardCoins, cooldownMs, dailyLimit, xpPerTap, perMinuteLimit } */
 export const PATCH = apiHandler("PATCH /api/admin/settings", async (request: Request) => {
   const { supabase } = await requireAdmin();
   const policy = await readAdminBody(request, tapPolicyInputSchema);

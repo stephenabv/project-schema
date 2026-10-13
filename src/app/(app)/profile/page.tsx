@@ -73,6 +73,9 @@ async function ProfileContent() {
           <ButtonLink href="/leaderboard" variant="secondary">
             Leaderboard
           </ButtonLink>
+          <ButtonLink href="/robots" variant="secondary">
+            Robot Shop
+          </ButtonLink>
           <ButtonLink href="/generator" variant="secondary">
             Generator
           </ButtonLink>

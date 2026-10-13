@@ -16,6 +16,9 @@ const PROTECTED_PREFIXES = [
   "/shop",
   "/notifications",
   "/generator",
+  "/robots",
+  "/exchange",
+  "/payouts",
   "/admin",
 ];
 const GUEST_ONLY_PATHS = ["/login", "/register"];

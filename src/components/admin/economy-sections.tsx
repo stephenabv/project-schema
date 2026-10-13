@@ -7,6 +7,8 @@ const EXPORT_LABELS: Record<(typeof EXPORT_DATASETS)[number], string> = {
   users: "Players",
   "audit-logs": "Audit log",
   economy: "Economy (90 days)",
+  conversions: "Conversion requests",
+  payouts: "Payout requests",
 };
 
 const ECONOMY_COLUMNS = [

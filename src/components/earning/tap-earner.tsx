@@ -167,7 +167,7 @@ export function TapEarner({
         </div>
 
         <p id="tap-help" className="max-w-sm text-center text-xs text-muted">
-          One accepted tap per {policy.cooldownMs / 1000} second, up to {formatCount(policy.dailyLimit)} per UTC day.
+          One accepted tap per {policy.cooldownMs / 1000} second, at most {formatCount(policy.perMinuteLimit)} a minute and {formatCount(policy.dailyLimit)} per UTC day. Robots earn far more over time.
           Rewards are recorded by the server.
         </p>
 

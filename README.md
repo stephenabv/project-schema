@@ -7,6 +7,12 @@ dashboard shows their running virtual earnings.
 > monetary value, and cannot be deposited, withdrawn, cashed out or exchanged for money. The app offers no
 > investments and no returns of any kind. The disclosure appears on the landing page, during registration, in the
 > wallet, and next to every balance.
+>
+> The release adds a VC-to-PHP **conversion and payout workflow** for a possible future, legally cleared program.
+> It is **switched off by default**; while it is off players only see that conversion is not available, and the
+> disclosures above stay in force. There is no payment provider: an admin sends each payout by hand and records the
+> payment reference before it can be marked paid. Do not open it until real-money payouts are legally cleared
+> (licensing, KYC/AML checks, tax and updated terms).
 
 Stack: Next.js 16 (App Router, Cache Components) · React 19 · TypeScript (strict) · Tailwind CSS 4 · Supabase
 (Auth + PostgreSQL) · Zod · Recharts · Vitest · Playwright · Vercel.
@@ -17,16 +23,17 @@ The blueprint's vertical slice (authenticated user → tap → atomic virtual re
 dashboard) plus **Phase 1** (missions, XP and levels, badges, profile and account settings), **Phase 2** (the admin
 console), **Phase 3** (daily bonus and streaks, leaderboards, cosmetic shop, notifications) and **Phase 4** (idle
 generator, feature flags, maintenance mode, scheduled missions, economy and retention analytics, CSV exports,
-installable web app).
+installable web app), plus **Phase 5**: robot workers (passive earnings), a rebalanced tap, and the conversion and
+payout workflow behind an admin switch that is off by default.
 
 | Area | Routes |
 | --- | --- |
 | Public | `/`, `/about` |
 | Auth | `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callback` |
-| App | `/dashboard`, `/earn`, `/missions`, `/achievements`, `/leaderboard`, `/shop`, `/generator`, `/notifications`, `/wallet`, `/profile`, `/settings` |
-| Admin | `/admin`, `/admin/analytics`, `/admin/users`, `/admin/tasks`, `/admin/achievements`, `/admin/settings`, `/admin/audit-logs` |
-| API | `POST /api/earn/tap`, `GET /api/wallet`, `GET /api/transactions`, `GET /api/dashboard`, `GET /api/tasks`, `POST /api/tasks/:id/claim`, `GET /api/achievements`, `GET/POST /api/daily-bonus`, `GET /api/leaderboard?board=xp\|weekly`, `GET /api/shop`, `POST /api/shop/:id/purchase`, `POST /api/shop/:id/equip`, `GET /api/notifications`, `POST /api/notifications/read`, `GET /api/generator`, `POST /api/generator/collect`, `POST /api/generator/upgrade`, `GET /api/config` |
-| Admin API | `GET /api/admin/analytics`, `GET /api/admin/users`, `PATCH /api/admin/users/:id`, `POST /api/admin/users/:id/adjustments`, `GET/POST /api/admin/tasks`, `PATCH /api/admin/tasks/:id`, `GET/POST /api/admin/achievements`, `PATCH /api/admin/achievements/:id`, `GET/PATCH /api/admin/settings`, `PUT /api/admin/settings/flags`, `PUT /api/admin/settings/maintenance`, `PUT /api/admin/tasks/:id/schedule`, `GET /api/admin/audit-logs`, `GET /api/admin/exports/:dataset` (`users`, `audit-logs`, `economy`) |
+| App | `/dashboard`, `/earn`, `/missions`, `/achievements`, `/leaderboard`, `/shop`, `/robots`, `/generator`, `/exchange`, `/payouts`, `/notifications`, `/wallet`, `/profile`, `/settings` |
+| Admin | `/admin`, `/admin/analytics`, `/admin/users`, `/admin/tasks`, `/admin/achievements`, `/admin/robots`, `/admin/exchange`, `/admin/conversions`, `/admin/payouts`, `/admin/payouts/:id`, `/admin/ledger`, `/admin/settings`, `/admin/audit-logs` |
+| API | `POST /api/earn/tap`, `GET /api/wallet`, `GET /api/transactions`, `GET /api/dashboard`, `GET /api/tasks`, `POST /api/tasks/:id/claim`, `GET /api/achievements`, `GET/POST /api/daily-bonus`, `GET /api/leaderboard?board=xp\|weekly`, `GET /api/shop`, `POST /api/shop/:id/purchase`, `POST /api/shop/:id/equip`, `GET /api/notifications`, `POST /api/notifications/read`, `GET /api/generator`, `POST /api/generator/collect`, `POST /api/generator/upgrade`, `GET /api/config`, `GET /api/robots`, `POST /api/robots/:id/purchase`, `GET /api/robots/generator`, `POST /api/robots/generator/collect`, `POST /api/robots/owned/:id/active`, `GET /api/earnings`, `GET /api/exchange`, `GET/POST /api/conversions`, `POST /api/conversions/:id/cancel`, `GET/POST /api/payouts`, `POST /api/payouts/:id/cancel` |
+| Admin API | `GET /api/admin/analytics`, `GET /api/admin/users`, `PATCH /api/admin/users/:id`, `POST /api/admin/users/:id/adjustments`, `GET/POST /api/admin/tasks`, `PATCH /api/admin/tasks/:id`, `GET/POST /api/admin/achievements`, `PATCH /api/admin/achievements/:id`, `GET/PATCH /api/admin/settings`, `PUT /api/admin/settings/flags`, `PUT /api/admin/settings/maintenance`, `PUT /api/admin/tasks/:id/schedule`, `GET /api/admin/audit-logs`, `GET /api/admin/exports/:dataset` (`users`, `audit-logs`, `economy`, `conversions`, `payouts`) |
 
 **Progression rules (all enforced in SQL).** Each accepted tap gives 1 XP; reaching level *L* takes
 `50 · L · (L − 1)` XP. Missions are daily (UTC day), weekly (ISO week, Monday UTC) or one-time; progress is computed
@@ -70,6 +77,40 @@ retention, and engagement-feature totals. CSV exports (players, audit log, 90-da
 never cached, and quote any cell that starts like a spreadsheet formula. The app ships a web app manifest so players
 can install it to their home screen.
 
+**Robots and passive earnings (Phase 5).** The Robot Shop sells robot workers in five tiers. Each robot has a
+price, an hourly rate (shown as VC/min, VC/h and 24-hour output), a per-player limit and a level requirement, all
+admin-configurable; the database refuses a catalogue where a cheaper robot out-earns a pricier one. Seeded robots
+run from Scout Bot (500 VC, 10 VC/h) to Nova Bot (80,000 VC, 2,200 VC/h). A player may own 15 robots and run 5 at
+once; each robot stores up to 24 hours of output. `purchase_robot` checks balance, level and limits and charges once
+per idempotency key (`robot_purchase` ledger entry); the robot keeps the rate it was bought at. Earnings accrue from
+server timestamps: `collect_robot_earnings` pays everything due in one `robot_earning` ledger entry and records a
+per-robot `robot_earnings` row, and pausing a robot pays what it had accrued first. Refreshes, extra tabs and
+replayed requests cannot pay twice because accrual restarts from the paid period's end inside the same locked
+transaction. **Tapping is now supplementary:** 2 VC per tap, a 1 s cooldown, at most 40 taps a minute and 500 a UTC
+day (all admin-configurable), so robots are the main source. Tap and robot income have distinct ledger types and are
+shown separately on the dashboard.
+
+**Conversion and payouts (off by default).** When an admin opens the program (it needs a rate, an active payout
+method, a reason and typing `ENABLE REDEMPTION`):
+
+- *Exchange rate.* Admins record `N VC = ₱X.XX` with an effective time and a reason; the history is append-only and
+  shows who set each rate. Changes of more than 25% need an explicit confirmation.
+- *Conversion requests* (`CNV-YYMMDD-XXXXXXXX`). The player submits an amount and the rate they reviewed; the
+  database refuses it if the rate changed (`RATE_CHANGED`), computes the pesos as `floor(VC × centavos ÷ VC)`,
+  snapshots the rate, and reserves the coins with a `conversion_hold` ledger entry so they cannot be spent twice.
+  Statuses: Pending → Under review → Approved → Completed, or Rejected / Cancelled, which release the coins with a
+  `conversion_release` entry. Completing credits the pesos to the player's converted balance.
+- *Payout requests* (`PAY-YYMMDD-XXXXXXXX`). The player picks an admin-configured method, an amount within the
+  limits, and their account details, which the server encrypts (AES-256-GCM, `PAYOUT_DETAILS_KEY`) before storage;
+  players only ever see a masked hint. The amount is held at once. Statuses: Pending → Under review → Approved →
+  Processing → Paid, or Rejected / Failed (amount returned) and Paid → Refunded. **Paid requires the payment
+  channel's reference and the admin's confirmation that they verified the transfer.** Opening a payout's review page
+  is itself audited.
+- Pesos are integer centavos in a separate append-only `php_ledger` with one entry per request and step, so no
+  request can be processed twice. Every transition is idempotent, keeps an event trail with notes and reasons,
+  notifies the player, and writes `audit_logs`. Admins cannot review their own requests. `/admin/ledger` reconciles
+  every coin and peso balance against its ledger and open requests.
+
 ## Architecture
 
 ```
@@ -91,7 +132,9 @@ supabase/
                         0005 provision pre-existing auth users · 0006 progression (XP, missions, badges) ·
                         0007 progression RLS, profile avatars and read models · 0008 admin console ·
                         0009 engagement (streaks, daily bonus, leaderboard, shop, notifications) ·
-                        0010 operations (flags, maintenance, generator, scheduling, analytics)
+                        0010 operations (flags, maintenance, generator, scheduling, analytics) ·
+                        0011 robots and tap rebalance · 0012 exchange, conversions and payouts ·
+                        0013 finance admin (rates, reviews, reconciliation)
 tests/
   unit/                 schemas, services, tap client, error mapping, HTTP helpers
   integration/api/      route handlers end to end with a fake auth boundary
@@ -100,7 +143,7 @@ tests/
 ```
 
 **The database is the source of truth for rewards.** `public.process_tap(idempotency_key)` derives the user from
-`auth.uid()`, locks the wallet row, replays duplicates, enforces the 1 s cooldown and 1,000 taps per UTC day, and
+`auth.uid()`, locks the wallet row, replays duplicates, enforces the cooldown and the per-minute and daily caps, and
 writes the ledger entry and the balance in one transaction. The browser sends only an idempotency key; the server
 never accepts an amount. The tap policy lives in one SQL function (`public.tap_policy()`) that the UI reads, so the
 numbers on screen always match what the server enforces.
@@ -130,6 +173,13 @@ numbers on screen always match what the server enforces.
 | `VE012` | record not found (including collecting from an unbuilt generator) | 404 | `NOT_FOUND` |
 | `VE014` | feature switched off by an admin | 403 | `FEATURE_DISABLED` |
 | `VE015` | generator has nothing to collect yet | 409 | `NOTHING_TO_COLLECT` |
+| `VE016` | more taps this minute than allowed | 429 + `Retry-After` | `TAP_RATE_LIMITED` |
+| `VE017` | robot ownership or work-slot limit reached | 409 | `LIMIT_REACHED` |
+| `VE018` | exchange rate changed since the player reviewed it | 409 | `RATE_CHANGED` |
+| `VE019` | conversion or payout amount outside the limits | 409 | `AMOUNT_OUT_OF_RANGE` |
+| `VE020` | request is not in a status that allows this | 409 | `INVALID_STATUS` |
+| `VE021` | rate change over 25% needs confirmation | 409 | `CONFIRMATION_REQUIRED` |
+| `VE022` | conversion has no rate or payout method yet | 503 | `NOT_CONFIGURED` |
 | `VE007` | maintenance mode | 503 + `Retry-After` | `MAINTENANCE_MODE` |
 | other | unexpected | 500 | `INTERNAL_ERROR` (details only in logs) |
 
@@ -156,6 +206,7 @@ Local auth has email confirmation disabled (`supabase/config.toml`), so a new ac
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes | Publishable key (older projects: anon key) |
 | `NEXT_PUBLIC_APP_URL` | prod | Builds auth email links; never derived from the Host header |
 | `NEXT_PUBLIC_APP_NAME` | no | Defaults to `Virtual Earn` |
+| `PAYOUT_DETAILS_KEY` | for payouts | Server-only, 32 random bytes in base64 (`openssl rand -base64 32`). Encrypts payout account details. Without it payout requests fail closed (503). Never prefix it with `NEXT_PUBLIC_`; losing or rotating it makes stored details unreadable |
 | `SUPABASE_SECRET_KEY` | no | Not used by this release. Never prefix it with `NEXT_PUBLIC_` |
 | `TEST_DATABASE_URL` | tests | Disposable PostgreSQL superuser URL for `npm run test:db` |
 
@@ -190,6 +241,11 @@ grants) and then every migration, so it proves the migrations revoke those defau
   `Cache-Control: private, no-store`. Security headers are set in `next.config.ts`.
 - Admin CSV exports neutralise formula-like cells (`=`, `+`, `-`, `@`, tab, carriage return) and are logged with
   the admin's id and row count. They include player emails, so treat downloaded files as personal data.
+- Payout account details are encrypted in the Next.js server before they reach the database and are never
+  returned to players, listed, or exported; only `/admin/payouts/:id` decrypts them, and each view is audited. The
+  column is not readable through the API (no grant), and the CSV export carries only the masked hint.
+- Conversion and payout amounts, rates and statuses are always decided by the database. The browser sends an
+  amount and the rate id it reviewed; the server re-reads the rate, the limits and the balance under a row lock.
 - Raw database errors never reach clients; logs are structured JSON with codes only (no emails, tokens or messages).
 
 ## Deployment (Vercel + Supabase)
@@ -203,8 +259,12 @@ grants) and then every migration, so it proves the migrations revoke those defau
    and add `https://<your-domain>/auth/callback` to the redirect allow list.
    Enable email confirmation and configure SMTP for production.
 4. In Vercel, set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `NEXT_PUBLIC_APP_URL` per
-   environment, then deploy.
-5. Smoke test: register, tap twice, reload, confirm the wallet shows two ledger rows.
+   environment, plus `PAYOUT_DETAILS_KEY` (Production only, marked Sensitive; generate it once and keep a copy in
+   your secret store, because a lost key makes stored payout details unreadable), then deploy.
+5. Smoke test: register, tap twice, reload, confirm the wallet shows two ledger rows. Buy a Scout Bot, wait a few
+   minutes, collect on `/generator`, and check the wallet shows the robot purchase and earnings.
+6. Conversion and payouts stay closed until an admin opens them on `/admin/exchange`. Before that: obtain legal
+   clearance, set the rate, review the payout methods and limits, and agree who sends and verifies payments.
 
 ### Operations
 
@@ -214,7 +274,7 @@ grants) and then every migration, so it proves the migrations revoke those defau
 - **Monitoring.** Alert on `api_error`/`api_unhandled_error`/`database_operation_failed` log events and on a
   rising rate of 429 responses. Periodically check that ledger and wallet reconcile:
   `select w.user_id from wallets w left join transactions t using (user_id) group by w.user_id, w.balance_coins having w.balance_coins <> coalesce(sum(t.amount_coins), 0);`
-  (expected: no rows).
+  (expected: no rows). `/admin/ledger` runs the same check for coins, reserved coins and every peso balance.
 - **Backups.** Use Supabase's daily backups (enable Point-in-Time Recovery for production) and test a restore into
   a non-production project before launch.
 - **Data retention.** Deleting an auth user cascades to their profile, wallet, tap state, role and ledger. Decide
