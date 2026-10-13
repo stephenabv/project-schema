@@ -12,6 +12,10 @@ export type TransactionType =
   | "shop_purchase"
   | "idle_reward"
   | "generator_upgrade"
+  | "robot_purchase"
+  | "robot_earning"
+  | "conversion_hold"
+  | "conversion_release"
   | "admin_adjustment";
 
 export type Database = {
@@ -43,7 +47,7 @@ export type Database = {
         Relationships: [];
       };
       wallets: {
-        Row: { user_id: string; balance_coins: number; updated_at: string };
+        Row: { user_id: string; balance_coins: number; reserved_coins: number; updated_at: string };
         Insert: { user_id: string; balance_coins?: number; updated_at?: string };
         Update: { user_id?: string; balance_coins?: number; updated_at?: string };
         Relationships: [];
@@ -87,6 +91,72 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      list_robot_shop: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_robot_generator: { Args: Record<PropertyKey, never>; Returns: Json };
+      purchase_robot: { Args: { p_robot_id: string; p_idempotency_key: string }; Returns: Json };
+      collect_robot_earnings: { Args: { p_idempotency_key: string }; Returns: Json };
+      set_robot_active: { Args: { p_user_robot_id: string; p_active: boolean; p_idempotency_key: string }; Returns: Json };
+      robot_policy: { Args: Record<PropertyKey, never>; Returns: Json };
+      redemption_policy: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_redemption_overview: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_earnings_breakdown: { Args: Record<PropertyKey, never>; Returns: Json };
+      list_my_conversions: { Args: { p_limit?: number }; Returns: Json };
+      list_my_payouts: { Args: { p_limit?: number }; Returns: Json };
+      request_conversion: { Args: { p_coins: number; p_expected_rate_id: string; p_idempotency_key: string }; Returns: Json };
+      cancel_conversion: { Args: { p_id: string }; Returns: Json };
+      request_payout: {
+        Args: {
+          p_method_id: string;
+          p_amount_centavos: number;
+          p_account_details: string;
+          p_account_hint: string;
+          p_idempotency_key: string;
+        };
+        Returns: Json;
+      };
+      cancel_payout: { Args: { p_id: string }; Returns: Json };
+      ve_admin_list_robots: { Args: Record<PropertyKey, never>; Returns: Json };
+      ve_admin_save_robot: { Args: { p_id: string | null; p_robot: Json }; Returns: Json };
+      ve_admin_update_robot_policy: { Args: { p_policy: Json }; Returns: Json };
+      ve_admin_robot_activity: { Args: { p_limit?: number }; Returns: Json };
+      ve_admin_get_redemption: { Args: Record<PropertyKey, never>; Returns: Json };
+      ve_admin_set_exchange_rate: {
+        Args: {
+          p_rate_coins: number;
+          p_rate_centavos: number;
+          p_effective_at: string | null;
+          p_reason: string;
+          p_confirm_large_change?: boolean;
+        };
+        Returns: Json;
+      };
+      ve_admin_update_redemption_policy: { Args: { p_policy: Json; p_reason: string }; Returns: Json };
+      ve_admin_save_payout_method: { Args: { p_id: string | null; p_method: Json }; Returns: Json };
+      ve_admin_list_conversions: {
+        Args: { p_status?: string | null; p_search?: string | null; p_limit?: number; p_offset?: number };
+        Returns: Json;
+      };
+      ve_admin_transition_conversion: {
+        Args: { p_id: string; p_to: string; p_note?: string | null; p_reason?: string | null };
+        Returns: Json;
+      };
+      ve_admin_list_payouts: {
+        Args: { p_status?: string | null; p_search?: string | null; p_limit?: number; p_offset?: number };
+        Returns: Json;
+      };
+      ve_admin_get_payout: { Args: { p_id: string }; Returns: Json };
+      ve_admin_transition_payout: {
+        Args: {
+          p_id: string;
+          p_to: string;
+          p_note?: string | null;
+          p_reason?: string | null;
+          p_payment_reference?: string | null;
+        };
+        Returns: Json;
+      };
+      ve_admin_finance_overview: { Args: Record<PropertyKey, never>; Returns: Json };
+      ve_admin_ledger_check: { Args: Record<PropertyKey, never>; Returns: Json };
       ve_list_notifications: { Args: { p_limit?: number }; Returns: Json };
       ve_unread_notification_count: { Args: Record<PropertyKey, never>; Returns: number };
       ve_mark_notifications_read: { Args: { p_ids?: string[] | null }; Returns: number };

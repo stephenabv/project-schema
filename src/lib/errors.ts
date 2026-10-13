@@ -99,7 +99,12 @@ export type ConflictCode =
   | "ACTION_NOT_ALLOWED"
   | "LEVEL_REQUIRED"
   | "ALREADY_OWNED"
-  | "NOTHING_TO_COLLECT";
+  | "NOTHING_TO_COLLECT"
+  | "LIMIT_REACHED"
+  | "RATE_CHANGED"
+  | "AMOUNT_OUT_OF_RANGE"
+  | "INVALID_STATUS"
+  | "CONFIRMATION_REQUIRED";
 
 /** The request conflicts with the current state (409). */
 export class ConflictError extends AppError {
@@ -117,7 +122,7 @@ export class RateLimitError extends AppError {
   readonly status = 429;
 
   constructor(
-    readonly code: "COOLDOWN_ACTIVE" | "DAILY_LIMIT_REACHED",
+    readonly code: "COOLDOWN_ACTIVE" | "DAILY_LIMIT_REACHED" | "TAP_RATE_LIMITED",
     message: string,
     readonly retryAfterSeconds: number,
   ) {
@@ -126,6 +131,16 @@ export class RateLimitError extends AppError {
 
   override headers(): Record<string, string> {
     return { "Retry-After": String(this.retryAfterSeconds) };
+  }
+}
+
+/** A required server-side setting (for example an encryption key) is missing (503). */
+export class NotConfiguredError extends AppError {
+  readonly status = 503;
+  readonly code = "NOT_CONFIGURED" as const;
+
+  constructor(message = "This feature is not set up yet.") {
+    super(message);
   }
 }
 

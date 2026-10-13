@@ -47,14 +47,14 @@ describe.skipIf(!hasDatabase)("read models", () => {
         (await c.query("select public.get_dashboard_summary() as s")).rows[0].s,
       );
       expect(summary).toMatchObject({
-        balanceCoins: 30,
-        totalEarnedCoins: 70,
-        todayEarnedCoins: 30,
+        balanceCoins: 6,
+        totalEarnedCoins: 46,
+        todayEarnedCoins: 6,
         actionsCompleted: 3,
         tapsToday: 3,
         currency: "VC",
         redeemable: false,
-        policy: { rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000 },
+        policy: { rewardCoins: 2, cooldownMs: 1000, dailyLimit: 500, perMinuteLimit: 40 },
       });
     });
   });
@@ -65,7 +65,7 @@ describe.skipIf(!hasDatabase)("read models", () => {
         (await c.query("select day::text, coins::int from public.get_reward_series(7)")).rows,
       );
       expect(rows).toHaveLength(7);
-      expect(rows.at(-1)?.coins).toBe(30);
+      expect(rows.at(-1)?.coins).toBe(6);
       expect(rows.at(-3)?.coins).toBe(40);
       expect(rows.slice(0, 4).every((r) => r.coins === 0)).toBe(true);
     });

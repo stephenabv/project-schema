@@ -40,7 +40,7 @@ const params = (id: string) => ({ params: Promise.resolve({ id }) });
 
 const appConfig = (leaderboard = true) => ({
   data: {
-    flags: { dailyBonus: true, leaderboard, shop: true, idleGenerator: true },
+    flags: { dailyBonus: true, leaderboard, shop: true, idleGenerator: true, robots: true },
     maintenance: { enabled: false, message: "" },
   },
   error: null,

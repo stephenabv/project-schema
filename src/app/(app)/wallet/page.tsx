@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Disclosure } from "@/components/layout/disclosure";
+import { EarningsBreakdownCard } from "@/components/dashboard/earnings-breakdown";
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert } from "@/components/ui/alert";
-import { buttonClass } from "@/components/ui/button";
+import { buttonClass, ButtonLink } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { LoadingCard, Skeleton } from "@/components/ui/skeleton";
 import { VirtualBadge } from "@/components/ui/virtual-badge";
@@ -14,7 +15,9 @@ import { getSessionOrRedirect } from "@/lib/auth/session";
 import { ValidationError } from "@/lib/errors";
 import { formatCoins } from "@/lib/formatting/coins";
 import { formatDateTimeUtc } from "@/lib/formatting/dates";
+import type { EarningsBreakdown } from "@/lib/validation/redemption";
 import { queryRecord, transactionQuerySchema, type TransactionQuery } from "@/lib/validation/transactions";
+import { RedemptionService } from "@/services/redemption";
 import { WalletService } from "@/services/wallet";
 
 export const metadata: Metadata = { title: "Wallet" };
@@ -39,7 +42,7 @@ async function WalletContent({ searchParams }: { searchParams: PageProps<"/walle
   const wallet = new WalletService(supabase);
   const parsed = transactionQuerySchema.safeParse(raw);
 
-  const balance = await wallet.getWallet(user.id);
+  const [balance, breakdown] = await Promise.all([wallet.getWallet(user.id), new RedemptionService(supabase).breakdown()]);
   const filters = { type: raw.type, from: raw.from, to: raw.to };
 
   return (
@@ -51,7 +54,22 @@ async function WalletContent({ searchParams }: { searchParams: PageProps<"/walle
         </div>
         <p className="text-4xl font-bold tabular-nums">{formatCoins(balance.balanceCoins)}</p>
         <p className="text-xs text-muted">Last updated {formatDateTimeUtc(balance.updatedAt)}</p>
+        {breakdown.reservedCoins > 0 ? (
+          <p className="text-xs text-muted">{formatCoins(breakdown.reservedCoins)} reserved by open conversion requests.</p>
+        ) : null}
+        {showRedemptionLinks(breakdown) ? (
+          <div className="flex flex-wrap gap-2 pt-1">
+            <ButtonLink href="/exchange" variant="secondary">
+              Exchange
+            </ButtonLink>
+            <ButtonLink href="/payouts" variant="secondary">
+              Payouts
+            </ButtonLink>
+          </div>
+        ) : null}
       </Card>
+
+      <EarningsBreakdownCard breakdown={breakdown} />
 
       <Card className="flex flex-col gap-4">
         <CardTitle>Activity</CardTitle>
@@ -107,6 +125,11 @@ async function Ledger({
       </nav>
     </>
   );
+}
+
+/** Conversion links appear only while the program is open or the player still has requests in it. */
+function showRedemptionLinks(b: EarningsBreakdown): boolean {
+  return b.redemptionEnabled || b.reservedCoins > 0 || b.approvedCentavos > 0 || b.pendingPayoutCentavos > 0 || b.paidCentavos > 0;
 }
 
 function WalletSkeleton() {

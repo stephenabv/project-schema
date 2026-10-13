@@ -131,7 +131,7 @@ describe("generator routes", () => {
 describe("GET /api/config", () => {
   it("returns the feature flags and maintenance state", async () => {
     const appConfig = {
-      flags: { dailyBonus: true, leaderboard: false, shop: true, idleGenerator: true },
+      flags: { dailyBonus: true, leaderboard: false, shop: true, idleGenerator: true, robots: true },
       maintenance: { enabled: true, message: "Back soon" },
     };
     useDatabase({ get_app_config: { data: appConfig, error: null } });
@@ -142,7 +142,7 @@ describe("GET /api/config", () => {
 });
 
 describe("admin operations routes", () => {
-  const flags = { dailyBonus: true, leaderboard: false, shop: true, idleGenerator: false };
+  const flags = { dailyBonus: true, leaderboard: false, shop: true, idleGenerator: false, robots: true };
 
   it("returns 403 to players", async () => {
     useDatabase({ ve_admin_update_feature_flags: { data: flags, error: null } });

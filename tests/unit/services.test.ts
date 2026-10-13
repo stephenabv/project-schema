@@ -134,7 +134,7 @@ describe("DashboardService", () => {
       actionsCompleted: 3,
       tapsToday: 3,
       lastTapAt: null,
-      policy: { rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1 },
+      policy: { rewardCoins: 2, cooldownMs: 1000, dailyLimit: 500, xpPerTap: 1, perMinuteLimit: 40 },
       currency: "VC",
       redeemable: false,
     };

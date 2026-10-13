@@ -64,8 +64,10 @@ describe("admin input validation", () => {
   });
 
   it("bounds the tap policy like the database does", () => {
-    const policy = { rewardCoins: "10", cooldownMs: "1000", dailyLimit: "1000", xpPerTap: "1" };
-    expect(tapPolicyInputSchema.parse(policy)).toEqual({ rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1 });
+    const policy = { rewardCoins: "2", cooldownMs: "1000", dailyLimit: "500", xpPerTap: "1", perMinuteLimit: "40" };
+    expect(tapPolicyInputSchema.parse(policy)).toEqual({ rewardCoins: 2, cooldownMs: 1000, dailyLimit: 500, xpPerTap: 1, perMinuteLimit: 40 });
+    expect(tapPolicyInputSchema.safeParse({ ...policy, perMinuteLimit: "0" }).success).toBe(false);
+    expect(tapPolicyInputSchema.safeParse({ ...policy, perMinuteLimit: "241" }).success).toBe(false);
     expect(tapPolicyInputSchema.safeParse({ ...policy, cooldownMs: "100" }).success).toBe(false);
     expect(tapPolicyInputSchema.safeParse({ ...policy, rewardCoins: "1001" }).success).toBe(false);
   });

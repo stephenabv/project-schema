@@ -20,6 +20,7 @@ const summarySchema = z.object({
     cooldownMs: z.number().int().nonnegative(),
     dailyLimit: z.number().int().positive(),
     xpPerTap: z.number().int().nonnegative(),
+    perMinuteLimit: z.number().int().positive(),
   }),
   currency: z.literal("VC"),
   redeemable: z.literal(false),

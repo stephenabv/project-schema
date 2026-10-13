@@ -63,6 +63,7 @@ export interface TapPolicy {
   cooldownMs: number;
   dailyLimit: number;
   xpPerTap: number;
+  perMinuteLimit: number;
 }
 
 export interface DashboardSummary extends VirtualAmount {
@@ -180,6 +181,13 @@ export const API_ERROR_CODES = [
   "LEVEL_REQUIRED",
   "ALREADY_OWNED",
   "NOTHING_TO_COLLECT",
+  "TAP_RATE_LIMITED",
+  "LIMIT_REACHED",
+  "RATE_CHANGED",
+  "AMOUNT_OUT_OF_RANGE",
+  "INVALID_STATUS",
+  "CONFIRMATION_REQUIRED",
+  "NOT_CONFIGURED",
   "FEATURE_DISABLED",
   "MAINTENANCE_MODE",
   "FORBIDDEN",

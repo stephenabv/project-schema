@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { RangeTabs } from "@/components/dashboard/range-tabs";
 import { RewardChart } from "@/components/dashboard/reward-chart";
+import { EarningsBreakdownCard } from "@/components/dashboard/earnings-breakdown";
 import { DailyBonusCard } from "@/components/engagement/daily-bonus-card";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
@@ -18,6 +19,7 @@ import { REWARD_RANGES, rewardRangeSchema } from "@/lib/validation/progression";
 import { BonusService } from "@/services/bonus";
 import { DashboardService } from "@/services/dashboard";
 import { ProgressionService } from "@/services/progression";
+import { RedemptionService } from "@/services/redemption";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -40,12 +42,13 @@ async function DashboardContent({ searchParams }: Pick<PageProps<"/dashboard">, 
   const { supabase } = await getSessionOrRedirect("/dashboard");
   const range = rewardRangeSchema.parse((await searchParams).range);
   const progressionService = new ProgressionService(supabase);
-  const [summary, progression, series, bonus, config] = await Promise.all([
+  const [summary, progression, series, bonus, config, breakdown] = await Promise.all([
     new DashboardService(supabase).getSummary(),
     progressionService.get(),
     progressionService.getRewardHistory(range),
     new BonusService(supabase).status(),
     getAppConfig(),
+    new RedemptionService(supabase).breakdown(),
   ]);
   const { bucket, label } = REWARD_RANGES[range];
 
@@ -79,6 +82,8 @@ async function DashboardContent({ searchParams }: Pick<PageProps<"/dashboard">, 
           icon={Award}
         />
       </div>
+
+      <EarningsBreakdownCard breakdown={breakdown} />
 
       <LevelCard progression={progression} />
 

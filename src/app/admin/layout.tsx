@@ -1,6 +1,7 @@
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
-import { AdminNav } from "@/components/admin/admin-nav";
+import { Suspense } from "react";
+import { AdminNav, AdminNavList } from "@/components/admin/admin-nav";
 import { Logo } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { ButtonLink } from "@/components/ui/button";
@@ -37,7 +38,9 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
       {/* minmax(0, 1fr) and min-w-0 stop wide children (the scrolling tab row, charts, tables) from widening the page. */}
       <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 lg:grid-cols-[200px_minmax(0,1fr)]">
         <nav aria-label="Admin" className="min-w-0">
-          <AdminNav />
+          <Suspense fallback={<AdminNavList pathname={null} />}>
+            <AdminNav />
+          </Suspense>
         </nav>
         <main id="content" className="min-w-0">
           {children}

@@ -87,7 +87,7 @@ describe.skipIf(!hasDatabase)("admin console", () => {
       ["select public.ve_admin_save_task(null, $1) as result", [JSON.stringify(task())]],
       ["select public.ve_admin_list_achievements() as result", []],
       ["select public.ve_admin_get_settings() as result", []],
-      ["select public.ve_admin_update_tap_policy($1) as result", [JSON.stringify({ rewardCoins: 999, cooldownMs: 250, dailyLimit: 1, xpPerTap: 0 })]],
+      ["select public.ve_admin_update_tap_policy($1) as result", [JSON.stringify({ rewardCoins: 999, cooldownMs: 250, dailyLimit: 1, xpPerTap: 0, perMinuteLimit: 1 })]],
       ["select public.ve_admin_list_audit_logs() as result", []],
     ];
 
@@ -336,13 +336,15 @@ describe.skipIf(!hasDatabase)("admin console", () => {
       const update = (policy: unknown) =>
         rejectsWith(call(db.pool, admin, "select public.ve_admin_update_tap_policy($1) as result", [JSON.stringify(policy)]));
       await expect(update({ rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000 })).resolves.toBe("22023");
-      await expect(update({ rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1, bonus: 1 })).resolves.toBe("22023");
-      await expect(update({ rewardCoins: 5000, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1 })).resolves.toBe("22023");
-      await expect(update({ rewardCoins: 10, cooldownMs: 10, dailyLimit: 1000, xpPerTap: 1 })).resolves.toBe("22023");
+      await expect(update({ rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1 })).resolves.toBe("22023");
+      await expect(update({ rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1, perMinuteLimit: 40, bonus: 1 })).resolves.toBe("22023");
+      await expect(update({ rewardCoins: 5000, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1, perMinuteLimit: 40 })).resolves.toBe("22023");
+      await expect(update({ rewardCoins: 10, cooldownMs: 10, dailyLimit: 1000, xpPerTap: 1, perMinuteLimit: 40 })).resolves.toBe("22023");
+      await expect(update({ rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1, perMinuteLimit: 0 })).resolves.toBe("22023");
     });
 
     it("changes what the server pays per tap, with an audit entry", async () => {
-      const policy = { rewardCoins: 25, cooldownMs: 500, dailyLimit: 2000, xpPerTap: 2 };
+      const policy = { rewardCoins: 25, cooldownMs: 500, dailyLimit: 2000, xpPerTap: 2, perMinuteLimit: 60 };
       await expect(
         call(db.pool, admin, "select public.ve_admin_update_tap_policy($1) as result", [JSON.stringify(policy)]),
       ).resolves.toEqual(policy);
@@ -357,7 +359,7 @@ describe.skipIf(!hasDatabase)("admin console", () => {
       expect(await auditActions(db.pool, "tap_policy")).toEqual(["settings.tap_policy"]);
 
       await call(db.pool, admin, "select public.ve_admin_update_tap_policy($1) as result", [
-        JSON.stringify({ rewardCoins: 10, cooldownMs: 1000, dailyLimit: 1000, xpPerTap: 1 }),
+        JSON.stringify({ rewardCoins: 2, cooldownMs: 1000, dailyLimit: 500, xpPerTap: 1, perMinuteLimit: 40 }),
       ]);
     });
   });

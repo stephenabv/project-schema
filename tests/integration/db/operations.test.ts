@@ -52,7 +52,7 @@ async function ageGenerator(pool: Pool, userId: string, hours: number): Promise<
   );
 }
 
-const ALL_ON = { dailyBonus: true, idleGenerator: true, leaderboard: true, shop: true };
+const ALL_ON = { dailyBonus: true, idleGenerator: true, leaderboard: true, robots: true, shop: true };
 
 interface GeneratorStatus {
   level: number;
@@ -149,7 +149,7 @@ describe.skipIf(!hasDatabase)("operations: flags, maintenance, generator, schedu
       });
     });
 
-    it("requires exactly the four boolean flags", async () => {
+    it("requires exactly the five boolean flags", async () => {
       await expect(rejectsWith(setFlags({ ...ALL_ON, extra: true }))).resolves.toBe("22023");
       await expect(rejectsWith(setFlags({ ...ALL_ON, shop: "no" }))).resolves.toBe("22023");
       await expect(rejectsWith(setFlags({ dailyBonus: true }))).resolves.toBe("22023");

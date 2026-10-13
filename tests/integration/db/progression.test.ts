@@ -92,12 +92,12 @@ describe.skipIf(!hasDatabase)("progression, missions and achievements", () => {
       const user = await createUser(db.pool);
       const result = await tap(db.pool, user);
 
-      expect(result).toMatchObject({ rewardCoins: 10, duplicate: false });
+      expect(result).toMatchObject({ rewardCoins: 2, duplicate: false });
       expect(result).toMatchObject({
         xpEarned: 1,
         xpTotal: 6, // 1 for the tap + 5 for the First Tap badge
         level: 1,
-        balanceCoins: 20, // 10 for the tap + 10 for the badge
+        balanceCoins: 12, // 2 for the tap + 10 for the badge
         unlockedAchievements: [expect.objectContaining({ slug: "first-tap", rewardCoins: 10 })],
       });
 
@@ -105,7 +105,7 @@ describe.skipIf(!hasDatabase)("progression, missions and achievements", () => {
         "select tap_count, coins_earned::int, xp_earned::int from public.daily_activity where user_id = $1",
         [user],
       );
-      expect(rows).toEqual([{ tap_count: 1, coins_earned: 20, xp_earned: 6 }]);
+      expect(rows).toEqual([{ tap_count: 1, coins_earned: 12, xp_earned: 6 }]);
       expect(await ledgerSum(db.pool, user)).toBe(await balanceOf(db.pool, user));
     });
 
@@ -288,7 +288,7 @@ describe.skipIf(!hasDatabase)("progression, missions and achievements", () => {
         (await c.query("select period_start, coins::int from public.get_reward_history($1, $2)", [bucket, points])).rows,
       );
       expect(rows).toHaveLength(points);
-      expect(rows.at(-1).coins).toBe(20);
+      expect(rows.at(-1).coins).toBe(12);
     });
 
     it("rejects unsupported history ranges", async () => {
