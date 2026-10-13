@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ShopGrid } from "@/components/engagement/shop-grid";
+import { FeatureOff } from "@/components/layout/feature-off";
 import { PageHeader } from "@/components/layout/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSessionOrRedirect } from "@/lib/auth/session";
+import { getAppConfig } from "@/lib/config/app-config";
 import { ProfileService } from "@/services/profile";
 import { ShopService } from "@/services/shop";
 
@@ -25,6 +27,7 @@ export default function ShopPage() {
 
 async function ShopContent() {
   const { supabase, user } = await getSessionOrRedirect("/shop");
+  if (!(await getAppConfig()).flags.shop) return <FeatureOff feature="The shop" />;
   const [shop, profile] = await Promise.all([new ShopService(supabase).list(), new ProfileService(supabase).get(user.id)]);
   return <ShopGrid initialShop={shop} avatarKey={profile.avatarKey} />;
 }

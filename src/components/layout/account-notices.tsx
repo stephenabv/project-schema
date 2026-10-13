@@ -2,6 +2,7 @@ import { Bell, ShieldCheck } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { ButtonLink } from "@/components/ui/button";
 import { getAccountStatus } from "@/lib/auth/account-status";
+import { getAppConfig } from "@/lib/config/app-config";
 import { requireUser } from "@/lib/auth/require-user";
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
@@ -28,6 +29,20 @@ export async function SuspensionNotice() {
       <Alert tone="danger">
         Your account is suspended, so taps and missions cannot earn virtual coins right now.
         {status.suspensionReason ? ` Reason: ${status.suspensionReason}` : ""}
+      </Alert>
+    </div>
+  );
+}
+
+/** Banner shown to everyone while an admin has paused earning and spending. */
+export async function MaintenanceNotice() {
+  const { maintenance } = await getAppConfig();
+  if (!maintenance.enabled) return null;
+  return (
+    <div className="mb-4">
+      <Alert tone="warning">
+        Maintenance in progress: earning and spending virtual coins are paused for a moment.
+        {maintenance.message ? ` ${maintenance.message}` : ""}
       </Alert>
     </div>
   );

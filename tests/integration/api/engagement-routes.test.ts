@@ -38,8 +38,16 @@ function post(url: string, body: unknown) {
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) });
 
+const appConfig = (leaderboard = true) => ({
+  data: {
+    flags: { dailyBonus: true, leaderboard, shop: true, idleGenerator: true },
+    maintenance: { enabled: false, message: "" },
+  },
+  error: null,
+});
+
 function useDatabase(rpc: Record<string, FakeResult> = {}) {
-  fake = createFakeSupabase({ rpc });
+  fake = createFakeSupabase({ rpc: { get_app_config: appConfig(), ...rpc } });
 }
 
 beforeEach(() => {
@@ -144,6 +152,14 @@ describe("GET /api/leaderboard", () => {
     useDatabase({ get_leaderboard: { data: { ...board, board: "xp" }, error: null } });
     await leaderboard(new NextRequest("http://localhost/api/leaderboard?board=coins';--"));
     expect(fake.rpc).toHaveBeenCalledWith("get_leaderboard", { p_board: "xp", p_limit: 25 });
+  });
+
+  it("returns 403 FEATURE_DISABLED when admins switched the leaderboard off", async () => {
+    useDatabase({ get_app_config: appConfig(false), get_leaderboard: { data: board, error: null } });
+    const response = await leaderboard(new NextRequest("http://localhost/api/leaderboard"));
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({ code: "FEATURE_DISABLED" });
+    expect(fake.rpc).not.toHaveBeenCalledWith("get_leaderboard", expect.anything());
   });
 
   it("fails closed when rows break the display-only contract", async () => {

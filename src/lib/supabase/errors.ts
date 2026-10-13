@@ -3,8 +3,10 @@ import {
   AppError,
   AuthenticationError,
   ConflictError,
+  FeatureDisabledError,
   ForbiddenError,
   InternalError,
+  MaintenanceError,
   NotFoundError,
   RateLimitError,
   ValidationError,
@@ -47,6 +49,12 @@ export function toAppError(error: DatabaseError, operation: string): AppError {
       return new ConflictError("Mission objective not complete yet", "MISSION_INCOMPLETE");
     case "VE006":
       return new AccountSuspendedError();
+    case "VE007":
+      return new MaintenanceError();
+    case "VE014":
+      return new FeatureDisabledError();
+    case "VE015":
+      return new ConflictError("Nothing to collect yet. Check back soon.", "NOTHING_TO_COLLECT");
     case "VE008":
       return new ConflictError("Not enough virtual coins for that", "INSUFFICIENT_BALANCE");
     case "VE009":

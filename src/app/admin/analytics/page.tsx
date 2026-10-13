@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { z } from "zod";
 import { ActivityChart } from "@/components/admin/activity-chart";
+import { EconomyTable, EngagementSummaryCard, ExportLinks, RetentionTable } from "@/components/admin/economy-sections";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +15,7 @@ import { AdminService } from "@/services/admin";
 export const metadata: Metadata = { title: "Analytics" };
 
 const RANGES = [7, 30, 90] as const;
+const RETENTION_WEEKS = 8;
 const rangeSchema = z.coerce.number().pipe(z.union(RANGES.map((n) => z.literal(n)))).catch(30);
 
 export default function AnalyticsPage({ searchParams }: PageProps<"/admin/analytics">) {
@@ -30,7 +32,13 @@ export default function AnalyticsPage({ searchParams }: PageProps<"/admin/analyt
 async function AnalyticsContent({ searchParams }: Pick<PageProps<"/admin/analytics">, "searchParams">) {
   const { supabase } = await getAdminOrNotFound("/admin/analytics");
   const days = rangeSchema.parse((await searchParams).days);
-  const series = await new AdminService(supabase).activitySeries(days);
+  const admin = new AdminService(supabase);
+  const [series, economy, retention, engagement] = await Promise.all([
+    admin.activitySeries(days),
+    admin.economySeries(days),
+    admin.retention(RETENTION_WEEKS),
+    admin.engagementSummary(),
+  ]);
   const totals = series.reduce(
     (sum, p) => ({
       taps: sum.taps + p.taps,
@@ -73,6 +81,10 @@ async function AnalyticsContent({ searchParams }: Pick<PageProps<"/admin/analyti
         <CardTitle className="mb-4">Virtual coins issued and duplicate requests</CardTitle>
         <ActivityChart series={series} metrics={["coinsIssued", "duplicateRequests"]} label="Coins issued and duplicates" />
       </Card>
+      <EngagementSummaryCard summary={engagement} />
+      <EconomyTable series={economy} />
+      <RetentionTable cohorts={retention} />
+      <ExportLinks />
       <Card>
         <CardTitle className="mb-3">Daily table</CardTitle>
         <div className="max-h-96 overflow-auto">

@@ -3,7 +3,9 @@ import type { AppSupabaseClient } from "@/lib/supabase/server";
 import { AccountService } from "./account";
 import { AdminService } from "./admin";
 import { BonusService } from "./bonus";
+import { ConfigService } from "./config";
 import { DashboardService } from "./dashboard";
+import { GeneratorService } from "./generator";
 import { LeaderboardService } from "./leaderboard";
 import { MissionService } from "./missions";
 import { NotificationService } from "./notifications";
@@ -26,6 +28,8 @@ export interface Services {
   leaderboard: LeaderboardService;
   shop: ShopService;
   notifications: NotificationService;
+  generator: GeneratorService;
+  config: ConfigService;
 }
 
 /** Composes the services around one user-scoped (RLS) Supabase client. */
@@ -43,6 +47,8 @@ export function createServices(db: AppSupabaseClient): Services {
     leaderboard: new LeaderboardService(db),
     shop: new ShopService(db),
     notifications: new NotificationService(db),
+    generator: new GeneratorService(db),
+    config: new ConfigService(db),
   };
 }
 
@@ -50,7 +56,9 @@ export {
   AccountService,
   AdminService,
   BonusService,
+  ConfigService,
   DashboardService,
+  GeneratorService,
   LeaderboardService,
   MissionService,
   NotificationService,

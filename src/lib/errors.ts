@@ -66,6 +66,30 @@ export class AccountSuspendedError extends AppError {
   }
 }
 
+/** An admin turned this feature off (403). */
+export class FeatureDisabledError extends AppError {
+  readonly status = 403;
+  readonly code = "FEATURE_DISABLED" as const;
+
+  constructor(message = "This feature is turned off right now.") {
+    super(message);
+  }
+}
+
+/** Maintenance mode: earning and spending are paused (503). */
+export class MaintenanceError extends AppError {
+  readonly status = 503;
+  readonly code = "MAINTENANCE_MODE" as const;
+
+  constructor(message = "Virtual Earn is in maintenance. Earning and spending are paused for a moment.") {
+    super(message);
+  }
+
+  override headers(): Record<string, string> {
+    return { "Retry-After": "60" };
+  }
+}
+
 export type ConflictCode =
   | "IDEMPOTENCY_CONFLICT"
   | "ALREADY_CLAIMED"
@@ -74,7 +98,8 @@ export type ConflictCode =
   | "INSUFFICIENT_BALANCE"
   | "ACTION_NOT_ALLOWED"
   | "LEVEL_REQUIRED"
-  | "ALREADY_OWNED";
+  | "ALREADY_OWNED"
+  | "NOTHING_TO_COLLECT";
 
 /** The request conflicts with the current state (409). */
 export class ConflictError extends AppError {

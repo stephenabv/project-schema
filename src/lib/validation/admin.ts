@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BADGE_ICON_KEYS } from "@/lib/progression/badge-icons";
+import { featureFlagsSchema, maintenanceSchema } from "./operations";
 import { ACHIEVEMENT_METRICS } from "./progression";
 
 const count = z.number().int().nonnegative();
@@ -212,6 +213,9 @@ export const adminTaskSchema = z.object({
   frequency: z.enum(TASK_FREQUENCIES),
   status: z.enum(TASK_STATUSES),
   sortOrder: z.number().int(),
+  publishAt: z.string().nullable().default(null),
+  unpublishAt: z.string().nullable().default(null),
+  live: z.boolean().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
   claimsTotal: count,
@@ -246,6 +250,8 @@ export const adminSettingsSchema = z.object({
   tapPolicy: tapPolicySchema,
   tapPolicyUpdatedAt: z.string().nullable(),
   tapPolicyUpdatedBy: z.string().nullable(),
+  featureFlags: featureFlagsSchema,
+  maintenance: maintenanceSchema,
 });
 export type AdminSettings = z.infer<typeof adminSettingsSchema>;
 export { tapPolicySchema };

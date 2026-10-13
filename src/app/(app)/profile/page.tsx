@@ -73,6 +73,9 @@ async function ProfileContent() {
           <ButtonLink href="/leaderboard" variant="secondary">
             Leaderboard
           </ButtonLink>
+          <ButtonLink href="/generator" variant="secondary">
+            Generator
+          </ButtonLink>
         </div>
       </Card>
     </div>

@@ -10,6 +10,8 @@ export type TransactionType =
   | "achievement_reward"
   | "daily_bonus"
   | "shop_purchase"
+  | "idle_reward"
+  | "generator_upgrade"
   | "admin_adjustment";
 
 export type Database = {
@@ -96,6 +98,19 @@ export type Database = {
       purchase_item: { Args: { p_item_id: string; p_idempotency_key: string }; Returns: Json };
       equip_item: { Args: { p_item_id: string; p_equip?: boolean }; Returns: Json };
       get_account_status: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_app_config: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_generator_status: { Args: Record<PropertyKey, never>; Returns: Json };
+      collect_generator: { Args: { p_idempotency_key: string }; Returns: Json };
+      upgrade_generator: { Args: { p_idempotency_key: string }; Returns: Json };
+      ve_admin_update_feature_flags: { Args: { p_flags: Json }; Returns: Json };
+      ve_admin_set_maintenance: { Args: { p_enabled: boolean; p_message?: string | null }; Returns: Json };
+      ve_admin_schedule_task: {
+        Args: { p_task_id: string; p_publish_at: string | null; p_unpublish_at: string | null };
+        Returns: Json;
+      };
+      ve_admin_economy_series: { Args: { p_days?: number }; Returns: Json };
+      ve_admin_retention: { Args: { p_weeks?: number }; Returns: Json };
+      ve_admin_engagement_summary: { Args: Record<PropertyKey, never>; Returns: Json };
       ve_admin_overview: { Args: Record<PropertyKey, never>; Returns: Json };
       ve_admin_activity_series: {
         Args: { p_days?: number };

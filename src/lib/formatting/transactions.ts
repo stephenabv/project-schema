@@ -6,6 +6,8 @@ const LABELS: Record<TransactionType, string> = {
   achievement_reward: "Badge reward",
   daily_bonus: "Daily bonus",
   shop_purchase: "Shop purchase",
+  idle_reward: "Generator output",
+  generator_upgrade: "Generator upgrade",
   admin_adjustment: "Adjustment",
 };
 

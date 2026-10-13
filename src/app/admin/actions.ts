@@ -14,6 +14,7 @@ import {
   userActionSchema,
 } from "@/lib/validation/admin";
 import { fieldErrorsOf } from "@/lib/validation/auth";
+import { FEATURE_FLAGS, maintenanceInputSchema, scheduleInputSchema } from "@/lib/validation/operations";
 import { formatSignedCoins } from "@/lib/formatting/coins";
 import { parseRecordId } from "@/lib/http/admin";
 import { AdminService } from "@/services/admin";
@@ -134,5 +135,45 @@ export async function adjustBalance(_prev: FormState, formData: FormData): Promi
     return result.duplicate
       ? "This adjustment was already applied."
       : `Applied ${formatSignedCoins(result.amountCoins)}. New virtual balance: ${result.balanceCoins} VC.`;
+  });
+}
+
+export async function updateFeatureFlags(_prev: FormState, formData: FormData): Promise<FormState> {
+  const flags = Object.fromEntries(FEATURE_FLAGS.map((flag) => [flag, formData.get(flag) === "on"])) as Record<
+    (typeof FEATURE_FLAGS)[number],
+    boolean
+  >;
+  const echo = Object.fromEntries(FEATURE_FLAGS.map((flag) => [flag, flags[flag] ? "on" : ""]));
+
+  return run("update_feature_flags", echo, async (admin) => {
+    await admin.updateFeatureFlags(flags);
+    return "Feature flags saved. Changes apply immediately.";
+  });
+}
+
+export async function setMaintenance(_prev: FormState, formData: FormData): Promise<FormState> {
+  const echo = values(formData, ["enabled", "message"]);
+  const parsed = maintenanceInputSchema.safeParse({ enabled: echo.enabled === "true", message: echo.message });
+  const failure = invalid(parsed, echo);
+  if (failure || !parsed.success) return failure!;
+
+  return run("set_maintenance", echo, async (admin) => {
+    const status = await admin.setMaintenance(parsed.data);
+    return status.enabled
+      ? "Maintenance mode is on: earning and spending are paused."
+      : "Maintenance mode is off: earning and spending are back.";
+  });
+}
+
+export async function scheduleTask(_prev: FormState, formData: FormData): Promise<FormState> {
+  const echo = values(formData, ["taskId", "publishAt", "unpublishAt"]);
+  const { taskId, ...fields } = echo;
+  const parsed = scheduleInputSchema.safeParse(fields);
+  const failure = invalid(parsed, echo);
+  if (failure || !parsed.success) return failure!;
+
+  return run("schedule_task", echo, async (admin) => {
+    const task = await admin.scheduleTask(parseRecordId(taskId), parsed.data);
+    return task.live ? `${task.title} is live now.` : `Schedule saved for ${task.title}.`;
   });
 }

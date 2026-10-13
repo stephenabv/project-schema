@@ -15,16 +15,18 @@ Stack: Next.js 16 (App Router, Cache Components) · React 19 · TypeScript (stri
 
 The blueprint's vertical slice (authenticated user → tap → atomic virtual reward → persisted wallet → history →
 dashboard) plus **Phase 1** (missions, XP and levels, badges, profile and account settings), **Phase 2** (the admin
-console) and **Phase 3** (daily bonus and streaks, leaderboards, cosmetic shop, notifications).
+console), **Phase 3** (daily bonus and streaks, leaderboards, cosmetic shop, notifications) and **Phase 4** (idle
+generator, feature flags, maintenance mode, scheduled missions, economy and retention analytics, CSV exports,
+installable web app).
 
 | Area | Routes |
 | --- | --- |
 | Public | `/`, `/about` |
 | Auth | `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callback` |
-| App | `/dashboard`, `/earn`, `/missions`, `/achievements`, `/leaderboard`, `/shop`, `/notifications`, `/wallet`, `/profile`, `/settings` |
+| App | `/dashboard`, `/earn`, `/missions`, `/achievements`, `/leaderboard`, `/shop`, `/generator`, `/notifications`, `/wallet`, `/profile`, `/settings` |
 | Admin | `/admin`, `/admin/analytics`, `/admin/users`, `/admin/tasks`, `/admin/achievements`, `/admin/settings`, `/admin/audit-logs` |
-| API | `POST /api/earn/tap`, `GET /api/wallet`, `GET /api/transactions`, `GET /api/dashboard`, `GET /api/tasks`, `POST /api/tasks/:id/claim`, `GET /api/achievements`, `GET/POST /api/daily-bonus`, `GET /api/leaderboard?board=xp\|weekly`, `GET /api/shop`, `POST /api/shop/:id/purchase`, `POST /api/shop/:id/equip`, `GET /api/notifications`, `POST /api/notifications/read` |
-| Admin API | `GET /api/admin/analytics`, `GET /api/admin/users`, `PATCH /api/admin/users/:id`, `POST /api/admin/users/:id/adjustments`, `GET/POST /api/admin/tasks`, `PATCH /api/admin/tasks/:id`, `GET/POST /api/admin/achievements`, `PATCH /api/admin/achievements/:id`, `GET/PATCH /api/admin/settings`, `GET /api/admin/audit-logs` |
+| API | `POST /api/earn/tap`, `GET /api/wallet`, `GET /api/transactions`, `GET /api/dashboard`, `GET /api/tasks`, `POST /api/tasks/:id/claim`, `GET /api/achievements`, `GET/POST /api/daily-bonus`, `GET /api/leaderboard?board=xp\|weekly`, `GET /api/shop`, `POST /api/shop/:id/purchase`, `POST /api/shop/:id/equip`, `GET /api/notifications`, `POST /api/notifications/read`, `GET /api/generator`, `POST /api/generator/collect`, `POST /api/generator/upgrade`, `GET /api/config` |
+| Admin API | `GET /api/admin/analytics`, `GET /api/admin/users`, `PATCH /api/admin/users/:id`, `POST /api/admin/users/:id/adjustments`, `GET/POST /api/admin/tasks`, `PATCH /api/admin/tasks/:id`, `GET/POST /api/admin/achievements`, `PATCH /api/admin/achievements/:id`, `GET/PATCH /api/admin/settings`, `PUT /api/admin/settings/flags`, `PUT /api/admin/settings/maintenance`, `PUT /api/admin/tasks/:id/schedule`, `GET /api/admin/audit-logs`, `GET /api/admin/exports/:dataset` (`users`, `audit-logs`, `economy`) |
 
 **Progression rules (all enforced in SQL).** Each accepted tap gives 1 XP; reaching level *L* takes
 `50 · L · (L − 1)` XP. Missions are daily (UTC day), weekly (ISO week, Monday UTC) or one-time; progress is computed
@@ -57,8 +59,16 @@ balance in one transaction and is idempotent, writing a `shop_purchase` ledger e
 notifications for badges, level-ups, purchases and admin actions on your account (suspension, restore, wallet
 adjustments), kept as history and read newest first.
 
-Delivery plan for the rest of the blueprint: Phase 4 idle generator, advanced analytics, scheduled publishing,
-feature flags and maintenance mode, exports.
+**Operations (Phase 4).** The idle generator costs `150 · L²` VC to build or raise to level *L* (max 10) and
+makes `6 · L` VC per hour, filling up after 8 hours. `collect_generator` pays what accrued by server time, so the
+browser's running counter is display only. Admins can switch the daily bonus, leaderboards, shop and generator off,
+and put the game in maintenance mode, which pauses every reward and purchase (admin adjustments still work). Both are
+enforced by a trigger on the ledger, so no code path can pay out around them, and both are audited. Missions can have
+a publishing window (`publish_at`, `unpublish_at`, entered in UTC); outside it they are hidden and cannot be claimed.
+The analytics page adds virtual coins by source and spent per day, weekly signup cohorts with day-1 and week-2
+retention, and engagement-feature totals. CSV exports (players, audit log, 90-day economy) are capped at 5,000 rows,
+never cached, and quote any cell that starts like a spreadsheet formula. The app ships a web app manifest so players
+can install it to their home screen.
 
 ## Architecture
 
@@ -80,7 +90,8 @@ supabase/
   migrations/           0001 schema · 0002 reward function · 0003 RLS/privileges · 0004 read models ·
                         0005 provision pre-existing auth users · 0006 progression (XP, missions, badges) ·
                         0007 progression RLS, profile avatars and read models · 0008 admin console ·
-                        0009 engagement (streaks, daily bonus, leaderboard, shop, notifications)
+                        0009 engagement (streaks, daily bonus, leaderboard, shop, notifications) ·
+                        0010 operations (flags, maintenance, generator, scheduling, analytics)
 tests/
   unit/                 schemas, services, tap client, error mapping, HTTP helpers
   integration/api/      route handlers end to end with a fake auth boundary
@@ -116,7 +127,10 @@ numbers on screen always match what the server enforces.
 | `VE009` | shop item needs a higher level | 409 | `LEVEL_REQUIRED` |
 | `VE013` | shop item already owned | 409 | `ALREADY_OWNED` |
 | `VE011` | action not allowed (e.g. demoting yourself) | 409 | `ACTION_NOT_ALLOWED` |
-| `VE012` | record not found | 404 | `NOT_FOUND` |
+| `VE012` | record not found (including collecting from an unbuilt generator) | 404 | `NOT_FOUND` |
+| `VE014` | feature switched off by an admin | 403 | `FEATURE_DISABLED` |
+| `VE015` | generator has nothing to collect yet | 409 | `NOTHING_TO_COLLECT` |
+| `VE007` | maintenance mode | 503 + `Retry-After` | `MAINTENANCE_MODE` |
 | other | unexpected | 500 | `INTERNAL_ERROR` (details only in logs) |
 
 ## Getting started
@@ -174,6 +188,8 @@ grants) and then every migration, so it proves the migrations revoke those defau
 - Login, signup and password reset return the same message whether or not an account exists.
 - Post-login redirects accept same-origin paths only. Request bodies are capped at 1 KB. API responses are
   `Cache-Control: private, no-store`. Security headers are set in `next.config.ts`.
+- Admin CSV exports neutralise formula-like cells (`=`, `+`, `-`, `@`, tab, carriage return) and are logged with
+  the admin's id and row count. They include player emails, so treat downloaded files as personal data.
 - Raw database errors never reach clients; logs are structured JSON with codes only (no emails, tokens or messages).
 
 ## Deployment (Vercel + Supabase)

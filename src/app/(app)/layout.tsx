@@ -1,7 +1,7 @@
 import { CircleUserRound, LogOut, Settings } from "lucide-react";
 import { Suspense } from "react";
 import { signOut } from "@/app/(auth)/actions";
-import { AdminLink, NotificationBell, SuspensionNotice } from "@/components/layout/account-notices";
+import { AdminLink, MaintenanceNotice, NotificationBell, SuspensionNotice } from "@/components/layout/account-notices";
 import { Logo } from "@/components/layout/logo";
 import { NavLinks } from "@/components/layout/nav-links";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -50,6 +50,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         </div>
       </header>
       <main id="content" className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
+        <Suspense fallback={null}>
+          <MaintenanceNotice />
+        </Suspense>
         <Suspense fallback={null}>
           <SuspensionNotice />
         </Suspense>

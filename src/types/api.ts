@@ -106,6 +106,8 @@ export interface Mission {
   periodEndsAt: string | null;
   claimed: boolean;
   claimedAt: string | null;
+  /** End of a scheduled mission's window, if it has one. */
+  availableUntil: string | null;
 }
 
 export interface MissionsResponse extends VirtualAmount {
@@ -177,6 +179,9 @@ export const API_ERROR_CODES = [
   "ACTION_NOT_ALLOWED",
   "LEVEL_REQUIRED",
   "ALREADY_OWNED",
+  "NOTHING_TO_COLLECT",
+  "FEATURE_DISABLED",
+  "MAINTENANCE_MODE",
   "FORBIDDEN",
   "ACCOUNT_SUSPENDED",
   "INTERNAL_ERROR",

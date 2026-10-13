@@ -16,6 +16,7 @@ export const mission = {
   periodEndsAt: "2026-10-14T00:00:00+00:00",
   claimed: false,
   claimedAt: null,
+  availableUntil: null,
 };
 
 export const claimResult = {

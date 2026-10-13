@@ -6,6 +6,8 @@ export const TRANSACTION_TYPES = [
   "achievement_reward",
   "daily_bonus",
   "shop_purchase",
+  "idle_reward",
+  "generator_upgrade",
   "admin_adjustment",
 ] as const;
 

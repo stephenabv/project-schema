@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Hand, LayoutDashboard, ShoppingBag, Target, Trophy, Wallet } from "lucide-react";
+import { Award, Factory, Hand, LayoutDashboard, ShoppingBag, Target, Trophy, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 export const APP_NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, mobile: true },
   { href: "/earn", label: "Earn", icon: Hand, mobile: true },
+  { href: "/generator", label: "Generator", icon: Factory, mobile: false },
   { href: "/missions", label: "Missions", icon: Target, mobile: true },
   { href: "/achievements", label: "Badges", icon: Award, mobile: false },
   { href: "/leaderboard", label: "Ranks", icon: Trophy, mobile: false },

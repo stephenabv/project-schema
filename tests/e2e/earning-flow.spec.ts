@@ -96,6 +96,13 @@ test("a new user taps and sees server-confirmed running earnings", async ({ page
   await page.getByRole("button", { name: "Mark all as read" }).click();
   await expect(page.getByText("All caught up")).toBeVisible();
 
+  // The idle generator costs more than a new player holds, and nothing accrues before it is built.
+  await page.goto("/generator");
+  await expect(page.getByRole("heading", { name: "Idle generator" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Build for 150 VC" })).toBeDisabled();
+  const early = await page.request.post("/api/generator/collect", { data: { idempotencyKey: randomUUID() } });
+  expect(early.status()).toBe(404);
+
   // The browser session cannot be used to inflate the balance directly.
   const forged = await page.request.post("/api/earn/tap", {
     data: { idempotencyKey: randomUUID(), rewardCoins: 1_000_000 },

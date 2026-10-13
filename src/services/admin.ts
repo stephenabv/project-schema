@@ -32,6 +32,20 @@ import {
   type TaskInput,
   type UserAction,
 } from "@/lib/validation/admin";
+import {
+  economySeriesSchema,
+  engagementSummarySchema,
+  featureFlagsSchema,
+  maintenanceSchema,
+  retentionSchema,
+  type EconomyPoint,
+  type EngagementSummary,
+  type FeatureFlags,
+  type MaintenanceInput,
+  type MaintenanceStatus,
+  type RetentionCohort,
+  type ScheduleInput,
+} from "@/lib/validation/operations";
 import type { TapPolicy } from "@/types/api";
 import { parseContract } from "./contract";
 
@@ -64,11 +78,11 @@ export class AdminService {
     return parseContract(z.array(suspiciousRowSchema), data, "ve_admin_suspicious_activity");
   }
 
-  async listUsers(search: string | undefined, page: number): Promise<AdminUserPage> {
+  async listUsers(search: string | undefined, page: number, pageSize: number = ADMIN_USERS_PAGE_SIZE): Promise<AdminUserPage> {
     const { data, error } = await this.db.rpc("ve_admin_list_users", {
       p_search: search ?? null,
-      p_limit: ADMIN_USERS_PAGE_SIZE,
-      p_offset: (page - 1) * ADMIN_USERS_PAGE_SIZE,
+      p_limit: pageSize,
+      p_offset: (page - 1) * pageSize,
     });
     if (error) throw toAppError(error, "ve_admin_list_users");
     return parseContract(adminUserPageSchema, data, "ve_admin_list_users");
@@ -139,7 +153,51 @@ export class AdminService {
     return parseContract(tapPolicySchema, data, "ve_admin_update_tap_policy");
   }
 
-  async listAuditLogs(query: AuditQuery): Promise<AuditPage> {
+  async updateFeatureFlags(flags: FeatureFlags): Promise<FeatureFlags> {
+    const { data, error } = await this.db.rpc("ve_admin_update_feature_flags", { p_flags: flags });
+    if (error) throw toAppError(error, "ve_admin_update_feature_flags");
+    return parseContract(featureFlagsSchema, data, "ve_admin_update_feature_flags");
+  }
+
+  async setMaintenance(input: MaintenanceInput): Promise<MaintenanceStatus> {
+    const { data, error } = await this.db.rpc("ve_admin_set_maintenance", {
+      p_enabled: input.enabled,
+      p_message: input.message,
+    });
+    if (error) throw toAppError(error, "ve_admin_set_maintenance");
+    return parseContract(maintenanceSchema, data, "ve_admin_set_maintenance");
+  }
+
+  /** Sets a mission's publishing window; nulls remove the limit. */
+  async scheduleTask(taskId: string, input: ScheduleInput): Promise<AdminTask> {
+    const { data, error } = await this.db.rpc("ve_admin_schedule_task", {
+      p_task_id: taskId,
+      p_publish_at: input.publishAt,
+      p_unpublish_at: input.unpublishAt,
+    });
+    if (error) throw toAppError(error, "ve_admin_schedule_task");
+    return parseContract(adminTaskSchema, data, "ve_admin_schedule_task");
+  }
+
+  async economySeries(days: number): Promise<EconomyPoint[]> {
+    const { data, error } = await this.db.rpc("ve_admin_economy_series", { p_days: days });
+    if (error) throw toAppError(error, "ve_admin_economy_series");
+    return parseContract(economySeriesSchema, data, "ve_admin_economy_series");
+  }
+
+  async retention(weeks: number): Promise<RetentionCohort[]> {
+    const { data, error } = await this.db.rpc("ve_admin_retention", { p_weeks: weeks });
+    if (error) throw toAppError(error, "ve_admin_retention");
+    return parseContract(retentionSchema, data, "ve_admin_retention");
+  }
+
+  async engagementSummary(): Promise<EngagementSummary> {
+    const { data, error } = await this.db.rpc("ve_admin_engagement_summary");
+    if (error) throw toAppError(error, "ve_admin_engagement_summary");
+    return parseContract(engagementSummarySchema, data, "ve_admin_engagement_summary");
+  }
+
+  async listAuditLogs(query: AuditQuery, limit: number = AUDIT_PAGE_SIZE): Promise<AuditPage> {
     const cursor = query.cursor ? decodeCursor(query.cursor) : null;
     const { data, error } = await this.db.rpc("ve_admin_list_audit_logs", {
       p_action: query.action || null,
@@ -148,7 +206,7 @@ export class AdminService {
       p_to: query.to ? nextDay(query.to) : null,
       p_before_created_at: cursor?.createdAt ?? null,
       p_before_id: cursor?.id ?? null,
-      p_limit: AUDIT_PAGE_SIZE,
+      p_limit: limit,
     });
     if (error) throw toAppError(error, "ve_admin_list_audit_logs");
     const page = parseContract(auditPageResultSchema, data, "ve_admin_list_audit_logs");

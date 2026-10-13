@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { FeatureOff } from "@/components/layout/feature-off";
 import { PageHeader } from "@/components/layout/page-header";
 import { Avatar, isAvatarKey } from "@/components/profile/avatar";
 import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSessionOrRedirect } from "@/lib/auth/session";
+import { getAppConfig } from "@/lib/config/app-config";
 import { formatCoins, formatCount } from "@/lib/formatting/coins";
 import { formatShortDate } from "@/lib/formatting/dates";
 import {
@@ -36,6 +38,7 @@ export default function LeaderboardPage({ searchParams }: PageProps<"/leaderboar
 
 async function LeaderboardContent({ searchParams }: Pick<PageProps<"/leaderboard">, "searchParams">) {
   const { supabase } = await getSessionOrRedirect("/leaderboard");
+  if (!(await getAppConfig()).flags.leaderboard) return <FeatureOff feature="The leaderboard" />;
   const raw = (await searchParams).board;
   const board = leaderboardQuerySchema.parse(typeof raw === "string" ? raw : undefined);
   const leaderboard = await new LeaderboardService(supabase).get(board);
