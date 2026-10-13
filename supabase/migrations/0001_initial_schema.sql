@@ -3,14 +3,14 @@
 -- All balances in this schema are VIRTUAL coins (VC). They are non-redeemable,
 -- have no monetary value, and can never be withdrawn or exchanged for money.
 --
--- Creates profiles, wallets, the immutable transaction ledger, tap state, user
+-- Creates player profiles, wallets, the immutable transaction ledger, tap state, user
 -- roles, and the signup trigger that provisions a profile, a zero-balance
 -- wallet, tap state and the default 'user' role for every new auth user.
 
 -- ---------------------------------------------------------------------------
--- profiles
+-- player_profiles
 -- ---------------------------------------------------------------------------
-create table public.profiles (
+create table public.player_profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   username text not null
     check (username ~ '^[A-Za-z0-9_]{3,24}$'),
@@ -20,13 +20,13 @@ create table public.profiles (
 );
 
 -- Usernames are unique regardless of case ("Alice" and "alice" collide).
-create unique index profiles_username_lower_key on public.profiles (lower(username));
+create unique index player_profiles_username_lower_key on public.player_profiles (lower(username));
 
 -- ---------------------------------------------------------------------------
 -- wallets: exactly one per user (primary key on user_id)
 -- ---------------------------------------------------------------------------
 create table public.wallets (
-  user_id uuid primary key references public.profiles (id) on delete cascade,
+  user_id uuid primary key references public.player_profiles (id) on delete cascade,
   balance_coins bigint not null default 0 check (balance_coins >= 0),
   updated_at timestamptz not null default now()
 );
@@ -36,7 +36,7 @@ create table public.wallets (
 -- ---------------------------------------------------------------------------
 create table public.transactions (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references public.profiles (id) on delete cascade,
+  user_id uuid not null references public.player_profiles (id) on delete cascade,
   amount_coins bigint not null check (amount_coins <> 0),
   type text not null check (
     type in ('tap_reward', 'mission_reward', 'admin_adjustment')
@@ -76,7 +76,7 @@ create trigger transactions_immutable
 -- tap_state: per-user cooldown and daily counters (UTC days)
 -- ---------------------------------------------------------------------------
 create table public.tap_state (
-  user_id uuid primary key references public.profiles (id) on delete cascade,
+  user_id uuid primary key references public.player_profiles (id) on delete cascade,
   last_tap_at timestamptz,
   activity_date date not null default (timezone('utc', now())::date),
   taps_today integer not null default 0 check (taps_today >= 0)
@@ -86,7 +86,7 @@ create table public.tap_state (
 -- user_roles: provisioned as 'user' at signup; 'admin' only via trusted ops
 -- ---------------------------------------------------------------------------
 create table public.user_roles (
-  user_id uuid primary key references public.profiles (id) on delete cascade,
+  user_id uuid primary key references public.player_profiles (id) on delete cascade,
   role text not null default 'user' check (role in ('user', 'admin'))
 );
 
@@ -111,7 +111,7 @@ begin
   if requested is not null
      and requested ~ '^[A-Za-z0-9_]{3,24}$'
      and not exists (
-       select 1 from public.profiles p where lower(p.username) = lower(requested)
+       select 1 from public.player_profiles p where lower(p.username) = lower(requested)
      ) then
     new_username := requested;
   else
@@ -119,10 +119,10 @@ begin
   end if;
 
   begin
-    insert into public.profiles (id, username) values (new.id, new_username);
+    insert into public.player_profiles (id, username) values (new.id, new_username);
   exception when unique_violation then
     -- Lost a race for the requested name: fall back to the generated one.
-    insert into public.profiles (id, username) values (new.id, fallback);
+    insert into public.player_profiles (id, username) values (new.id, fallback);
   end;
 
   insert into public.wallets (user_id, balance_coins) values (new.id, 0);

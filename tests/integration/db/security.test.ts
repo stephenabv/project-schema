@@ -49,26 +49,26 @@ describe.skipIf(!hasDatabase)("row level security and privileges", () => {
     });
 
     it("only shows the caller's own profile", async () => {
-      const rows = await asRole(db.pool, alice, async (c) => (await c.query("select id from public.profiles")).rows);
+      const rows = await asRole(db.pool, alice, async (c) => (await c.query("select id from public.player_profiles")).rows);
       expect(rows).toEqual([{ id: alice }]);
     });
 
     it("cannot rename another user's profile", async () => {
       const result = await asRole(db.pool, alice, (c) =>
-        c.query("update public.profiles set username = 'hijacked' where id = $1", [bob]),
+        c.query("update public.player_profiles set username = 'hijacked' where id = $1", [bob]),
       );
       expect(result.rowCount).toBe(0);
     });
 
     it("can rename its own profile", async () => {
       const result = await asRole(db.pool, alice, (c) =>
-        c.query("update public.profiles set username = 'alice_renamed' where id = $1", [alice]),
+        c.query("update public.player_profiles set username = 'alice_renamed' where id = $1", [alice]),
       );
       expect(result.rowCount).toBe(1);
     });
 
     it("cannot change protected profile columns", async () => {
-      await denied(alice, "update public.profiles set created_at = now() where id = $1", [alice]);
+      await denied(alice, "update public.player_profiles set created_at = now() where id = $1", [alice]);
     });
   });
 
@@ -108,7 +108,7 @@ describe.skipIf(!hasDatabase)("row level security and privileges", () => {
   });
 
   describe("anonymous callers", () => {
-    it.each(["profiles", "wallets", "transactions", "tap_state", "user_roles"])("cannot read %s", async (table) => {
+    it.each(["player_profiles", "wallets", "transactions", "tap_state", "user_roles"])("cannot read %s", async (table) => {
       await denied(null, `select * from public.${table}`);
     });
 
