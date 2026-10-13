@@ -14,14 +14,17 @@ Stack: Next.js 16 (App Router, Cache Components) · React 19 · TypeScript (stri
 ## What is in this release
 
 The blueprint's vertical slice (authenticated user → tap → atomic virtual reward → persisted wallet → history →
-dashboard) plus **Phase 1** of the remaining modules: missions, XP and levels, badges, profile and account settings.
+dashboard) plus **Phase 1** (missions, XP and levels, badges, profile and account settings) and **Phase 2** (the admin
+console).
 
 | Area | Routes |
 | --- | --- |
 | Public | `/`, `/about` |
 | Auth | `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callback` |
 | App | `/dashboard`, `/earn`, `/missions`, `/achievements`, `/wallet`, `/profile`, `/settings` |
+| Admin | `/admin`, `/admin/analytics`, `/admin/users`, `/admin/tasks`, `/admin/achievements`, `/admin/settings`, `/admin/audit-logs` |
 | API | `POST /api/earn/tap`, `GET /api/wallet`, `GET /api/transactions`, `GET /api/dashboard`, `GET /api/tasks`, `POST /api/tasks/:id/claim`, `GET /api/achievements` |
+| Admin API | `GET /api/admin/analytics`, `GET /api/admin/users`, `PATCH /api/admin/users/:id`, `POST /api/admin/users/:id/adjustments`, `GET/POST /api/admin/tasks`, `PATCH /api/admin/tasks/:id`, `GET/POST /api/admin/achievements`, `PATCH /api/admin/achievements/:id`, `GET/PATCH /api/admin/settings`, `GET /api/admin/audit-logs` |
 
 **Progression rules (all enforced in SQL).** Each accepted tap gives 1 XP; reaching level *L* takes
 `50 · L · (L − 1)` XP. Missions are daily (UTC day), weekly (ISO week, Monday UTC) or one-time; progress is computed
@@ -29,8 +32,23 @@ from recorded activity and each mission pays once per period through `public.cla
 Badges unlock automatically inside the same transaction as the reward that reached them and pay a one-time bonus.
 Every payout is a ledger entry (`tap_reward`, `mission_reward`, `achievement_reward`).
 
-Delivery plan for the rest of the blueprint: Phase 2 admin console · Phase 3 streaks, leaderboard, cosmetic shop,
-notifications · Phase 4 idle generator, advanced analytics, scheduled publishing, feature flags, exports.
+**Admin console.** Admins search users, suspend or restore accounts (a suspended account cannot receive any reward,
+enforced by a trigger on the ledger), grant or remove the admin role, and credit or debit virtual coins with a reason
+(idempotent, never below zero). They create, edit, publish and archive missions, configure badges, and change the
+tap policy (reward, cooldown, daily limit, XP per tap) that `process_tap` reads. Every change writes an append-only
+`audit_logs` row in the same transaction. Each `ve_admin_*` database function re-checks the caller's role, so the
+console's own checks (404 for non-admin pages, 403 for the API) are a second layer, not the only one.
+
+Admins can only be created by an existing admin or by the database owner. To bootstrap the first one, run in the
+Supabase SQL editor:
+
+```sql
+insert into public.user_roles (user_id, role) values ('<auth user id>', 'admin')
+on conflict (user_id) do update set role = 'admin';
+```
+
+Delivery plan for the rest of the blueprint: Phase 3 streaks, leaderboard, cosmetic shop, notifications · Phase 4
+idle generator, advanced analytics, scheduled publishing, feature flags, exports.
 
 ## Architecture
 
@@ -51,7 +69,7 @@ src/
 supabase/
   migrations/           0001 schema · 0002 reward function · 0003 RLS/privileges · 0004 read models ·
                         0005 provision pre-existing auth users · 0006 progression (XP, missions, badges) ·
-                        0007 progression RLS, profile avatars and read models
+                        0007 progression RLS, profile avatars and read models · 0008 admin console
 tests/
   unit/                 schemas, services, tap client, error mapping, HTTP helpers
   integration/api/      route handlers end to end with a fake auth boundary
@@ -80,8 +98,12 @@ numbers on screen always match what the server enforces.
 | `VE004` | mission already claimed this period | 409 | `ALREADY_CLAIMED` |
 | `VE005` | mission objective not complete | 409 | `MISSION_INCOMPLETE` |
 | `VE010` | mission not published | 404 | `NOT_FOUND` |
-| `23505` | username taken | 409 | `USERNAME_TAKEN` |
-| `42501` | privilege denied | 403 | `FORBIDDEN` |
+| `23505` | username or slug taken | 409 | `ALREADY_EXISTS` |
+| `42501` | privilege denied (including non-admins) | 403 | `FORBIDDEN` |
+| `VE006` | account suspended | 403 | `ACCOUNT_SUSPENDED` |
+| `VE008` | adjustment would make a balance negative | 409 | `INSUFFICIENT_BALANCE` |
+| `VE011` | action not allowed (e.g. demoting yourself) | 409 | `ACTION_NOT_ALLOWED` |
+| `VE012` | record not found | 404 | `NOT_FOUND` |
 | other | unexpected | 500 | `INTERNAL_ERROR` (details only in logs) |
 
 ## Getting started

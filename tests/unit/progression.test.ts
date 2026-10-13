@@ -105,7 +105,7 @@ describe("ProfileService", () => {
       .update(USER, { username: "taken", avatarKey: "coins" })
       .catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ConflictError);
-    expect((error as ConflictError).code).toBe("USERNAME_TAKEN");
+    expect((error as ConflictError).code).toBe("ALREADY_EXISTS");
   });
 
   it("treats a missing row as not found", async () => {

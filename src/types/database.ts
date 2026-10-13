@@ -13,7 +13,15 @@ export type Database = {
   public: {
     Tables: {
       player_profiles: {
-        Row: { id: string; username: string; avatar_url: string | null; avatar_key: string; created_at: string };
+        Row: {
+          id: string;
+          username: string;
+          avatar_url: string | null;
+          avatar_key: string;
+          created_at: string;
+          suspended_at: string | null;
+          suspension_reason: string | null;
+        };
         Insert: { id: string; username: string; avatar_url?: string | null; avatar_key?: string; created_at?: string };
         Update: { id?: string; username?: string; avatar_url?: string | null; avatar_key?: string; created_at?: string };
         Relationships: [];
@@ -63,6 +71,50 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      get_account_status: { Args: Record<PropertyKey, never>; Returns: Json };
+      ve_admin_overview: { Args: Record<PropertyKey, never>; Returns: Json };
+      ve_admin_activity_series: {
+        Args: { p_days?: number };
+        Returns: {
+          day: string;
+          active_players: number;
+          new_players: number;
+          taps: number;
+          coins_issued: number;
+          missions_claimed: number;
+          duplicate_requests: number;
+        }[];
+      };
+      ve_admin_suspicious_activity: { Args: { p_days?: number }; Returns: Json };
+      ve_admin_list_users: { Args: { p_search?: string | null; p_limit?: number; p_offset?: number }; Returns: Json };
+      ve_admin_set_suspension: {
+        Args: { p_user_id: string; p_suspended: boolean; p_reason?: string | null };
+        Returns: Json;
+      };
+      ve_admin_set_role: { Args: { p_user_id: string; p_role: string }; Returns: Json };
+      ve_admin_adjust_balance: {
+        Args: { p_user_id: string; p_amount: number; p_reason: string; p_idempotency_key: string };
+        Returns: Json;
+      };
+      ve_admin_list_tasks: { Args: Record<PropertyKey, never>; Returns: Json };
+      ve_admin_save_task: { Args: { p_task_id: string | null; p_task: Json }; Returns: Json };
+      ve_admin_list_achievements: { Args: Record<PropertyKey, never>; Returns: Json };
+      ve_admin_save_achievement: { Args: { p_id: string | null; p_achievement: Json }; Returns: Json };
+      ve_admin_get_settings: { Args: Record<PropertyKey, never>; Returns: Json };
+      ve_admin_update_tap_policy: { Args: { p_policy: Json }; Returns: Json };
+      ve_admin_list_audit_logs: {
+        Args: {
+          p_action?: string | null;
+          p_target_id?: string | null;
+          p_actor_id?: string | null;
+          p_from?: string | null;
+          p_to?: string | null;
+          p_before_created_at?: string | null;
+          p_before_id?: string | null;
+          p_limit?: number;
+        };
+        Returns: Json;
+      };
       claim_task: {
         Args: { p_task_id: string; p_idempotency_key: string };
         Returns: Json;

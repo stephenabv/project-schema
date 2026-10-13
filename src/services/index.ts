@@ -1,5 +1,7 @@
 import "server-only";
 import type { AppSupabaseClient } from "@/lib/supabase/server";
+import { AccountService } from "./account";
+import { AdminService } from "./admin";
 import { DashboardService } from "./dashboard";
 import { MissionService } from "./missions";
 import { ProfileService } from "./profile";
@@ -14,6 +16,8 @@ export interface Services {
   missions: MissionService;
   progression: ProgressionService;
   profile: ProfileService;
+  account: AccountService;
+  admin: AdminService;
 }
 
 /** Composes the services around one user-scoped (RLS) Supabase client. */
@@ -25,7 +29,9 @@ export function createServices(db: AppSupabaseClient): Services {
     missions: new MissionService(db),
     progression: new ProgressionService(db),
     profile: new ProfileService(db),
+    account: new AccountService(db),
+    admin: new AdminService(db),
   };
 }
 
-export { DashboardService, MissionService, ProfileService, ProgressionService, RewardService, WalletService };
+export { AccountService, AdminService, DashboardService, MissionService, ProfileService, ProgressionService, RewardService, WalletService };

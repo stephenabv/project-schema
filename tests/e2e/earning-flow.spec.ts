@@ -77,11 +77,22 @@ test("a new user taps and sees server-confirmed running earnings", async ({ page
   });
   expect(forged.status()).toBe(400);
 
+  // Players cannot reach the admin console or its API.
+  // (A streamed page cannot change its status code, so check the rendered result.)
+  await page.goto("/admin");
+  await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+  expect((await page.request.get("/api/admin/users")).status()).toBe(403);
+  await page.goto("/dashboard");
+
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/login$/);
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login\?next=/);
 
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/login\?next=%2Fadmin/);
+
   // A fresh, unauthenticated client gets nothing.
   expect((await request.get("/api/wallet")).status()).toBe(401);
+  expect((await request.get("/api/admin/analytics")).status()).toBe(401);
 });

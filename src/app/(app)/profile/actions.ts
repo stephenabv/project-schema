@@ -28,7 +28,7 @@ export async function updateProfile(_prev: FormState, formData: FormData): Promi
   try {
     await new ProfileService(supabase).update(user.id, parsed.data);
   } catch (error) {
-    if (error instanceof AppError && error.code === "USERNAME_TAKEN") {
+    if (error instanceof AppError && error.code === "ALREADY_EXISTS") {
       return { status: "error", fieldErrors: { username: "That username is already taken" }, values };
     }
     if (error instanceof AppError && error.code === "VALIDATION_FAILED") {

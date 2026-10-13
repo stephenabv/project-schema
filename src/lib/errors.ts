@@ -56,13 +56,31 @@ export class ForbiddenError extends AppError {
   }
 }
 
+/** The account is suspended, so it cannot earn rewards (403). */
+export class AccountSuspendedError extends AppError {
+  readonly status = 403;
+  readonly code = "ACCOUNT_SUSPENDED" as const;
+
+  constructor(message = "Your account is suspended, so it cannot earn rewards right now.") {
+    super(message);
+  }
+}
+
+export type ConflictCode =
+  | "IDEMPOTENCY_CONFLICT"
+  | "ALREADY_CLAIMED"
+  | "MISSION_INCOMPLETE"
+  | "ALREADY_EXISTS"
+  | "INSUFFICIENT_BALANCE"
+  | "ACTION_NOT_ALLOWED";
+
 /** The request conflicts with the current state (409). */
 export class ConflictError extends AppError {
   readonly status = 409;
 
   constructor(
     message: string,
-    readonly code: "IDEMPOTENCY_CONFLICT" | "ALREADY_CLAIMED" | "MISSION_INCOMPLETE" | "USERNAME_TAKEN" = "IDEMPOTENCY_CONFLICT",
+    readonly code: ConflictCode = "IDEMPOTENCY_CONFLICT",
   ) {
     super(message);
   }
