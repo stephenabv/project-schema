@@ -255,6 +255,7 @@ grants) and then every migration, so it proves the migrations revoke those defau
 3. In Supabase Auth, set the Site URL (leave it alone on a shared project; auth emails use an explicit redirect)
    and add `https://<your-domain>/auth/callback` to the redirect allow list.
    Enable email confirmation and configure SMTP for production.
+   On a shared project, also set up the shared auth emails (below).
 4. In Vercel, set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `NEXT_PUBLIC_APP_URL` per
    environment, plus `PAYOUT_DETAILS_KEY` (Production only, marked Sensitive; generate it once and keep a copy in
    your secret store, because a lost key makes stored payout details unreadable), then deploy.
@@ -262,6 +263,27 @@ grants) and then every migration, so it proves the migrations revoke those defau
    minutes, collect on `/generator`, and check the wallet shows the robot purchase and earnings.
 6. Conversion and payouts stay closed until an admin opens them on `/admin/exchange`. Before that: obtain legal
    clearance, set the rate, review the payout methods and limits, and agree who sends and verifies payments.
+
+### Shared auth emails
+
+Supabase keeps one set of email templates per project. When Virtual Earn shares a project with Unknown
+(stephenabv/project-unknown), the **Confirm signup** and **Reset password** templates must come from
+`supabase/templates/shared-project/`. Each file holds both apps' emails: a redirect starting with
+`https://virtual-earn` (every Virtual Earn auth email sets one) gets Virtual Earn's branding and a link to its own
+`/auth/callback`; anything else gets Unknown's email unchanged. Virtual Earn sends no other auth emails, so the
+remaining templates stay as Unknown set them.
+
+In **Authentication > Emails > Templates**, paste each file into its template and set its subject:
+
+| Template | File | Subject |
+| --- | --- | --- |
+| Confirm signup | `confirmation.html` | `{{ if and (ge (len .RedirectTo) 20) (eq (slice .RedirectTo 0 20) "https://virtual-earn") }}Confirm your Virtual Earn email{{ else }}Confirm your email for Unknown{{ end }}` |
+| Reset password | `recovery.html` | `{{ if and (ge (len .RedirectTo) 20) (eq (slice .RedirectTo 0 20) "https://virtual-earn") }}Reset your Virtual Earn password{{ else }}Reset your Unknown password{{ end }}` |
+
+To roll back, paste Unknown's `confirmation.html` and `recovery.html` and subjects from its README. To check the
+change, register on Virtual Earn: the email's link must start with `https://virtual-earn…/auth/callback?next=`.
+A Virtual Earn domain that does not start with `https://virtual-earn` needs the prefix in both files and subjects
+updated (`tests/unit/auth-email-templates.test.ts` checks the length guard).
 
 ### Operations
 
