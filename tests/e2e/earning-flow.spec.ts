@@ -95,6 +95,13 @@ test("a new user taps and sees server-confirmed running earnings", async ({ page
   await expect(page.getByText("Badge unlocked: First Tap")).toBeVisible();
   await page.getByRole("button", { name: "Mark all as read" }).click();
   await expect(page.getByText("All caught up")).toBeVisible();
+  // A notification opens its own message, with a way on to the page it is about.
+  await page.getByRole("link", { name: /Badge unlocked: First Tap/ }).click();
+  await expect(page).toHaveURL(/\/notifications\/[0-9a-f-]{36}$/);
+  await expect(page.getByRole("heading", { name: "Badge unlocked: First Tap" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Go to badges" })).toHaveAttribute("href", "/achievements");
+  await page.getByRole("link", { name: "All notifications" }).click();
+  await expect(page).toHaveURL(/\/notifications$/);
 
   // The idle generator costs more than a new player holds, and nothing accrues before it is built.
   await page.goto("/generator");

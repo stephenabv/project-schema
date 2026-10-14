@@ -1,8 +1,14 @@
 import "server-only";
 import { z } from "zod";
+import { NotFoundError } from "@/lib/errors";
 import { toAppError } from "@/lib/supabase/errors";
 import type { AppSupabaseClient } from "@/lib/supabase/server";
-import { notificationListSchema, type NotificationList } from "@/lib/validation/engagement";
+import {
+  notificationListSchema,
+  notificationSchema,
+  type AppNotification,
+  type NotificationList,
+} from "@/lib/validation/engagement";
 import { parseContract } from "./contract";
 
 export const NOTIFICATION_PAGE_SIZE = 30;
@@ -15,6 +21,30 @@ export class NotificationService {
     const { data, error } = await this.db.rpc("ve_list_notifications", { p_limit: limit });
     if (error) throw toAppError(error, "ve_list_notifications");
     return parseContract(notificationListSchema, data, "ve_list_notifications");
+  }
+
+  /** One of the caller's notifications. Row-level security hides other players' rows, so they read as not found. */
+  async get(id: string): Promise<AppNotification> {
+    const { data, error } = await this.db
+      .from("ve_notifications")
+      .select("id, kind, title, body, link, created_at, read_at")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw toAppError(error, "get_notification");
+    if (!data) throw new NotFoundError("Notification not found");
+    return parseContract(
+      notificationSchema,
+      {
+        id: data.id,
+        kind: data.kind,
+        title: data.title,
+        body: data.body,
+        link: data.link,
+        createdAt: data.created_at,
+        read: data.read_at !== null,
+      },
+      "get_notification",
+    );
   }
 
   async unreadCount(): Promise<number> {
