@@ -1,0 +1,106 @@
+{{- /*
+  Shared Supabase project: one template serves Virtual Earn and Unknown.
+  Virtual Earn always sends an explicit redirect to its own /auth/callback, so
+  a redirect starting with "https://virtual-earn" selects its branding and its
+  callback link. Anything else (Unknown, or the Site URL fallback) gets the
+  Unknown email exactly as published in stephenabv/project-unknown.
+  Go templates here have no "contains", hence the length-guarded prefix slice.
+*/ -}}
+{{- if and (ge (len .RedirectTo) 20) (eq (slice .RedirectTo 0 20) "https://virtual-earn") -}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>Reset your Virtual Earn password</title>
+</head>
+<body style="margin:0;padding:0;background:#f8fafc;-webkit-text-size-adjust:100%;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Choose a new password for your Virtual Earn account.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8fafc;">
+  <tr>
+    <td align="center" style="padding:40px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+        <tr>
+          <td align="center" style="padding-bottom:20px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.3px;color:#0f172a;">
+            Virtual <span style="color:#059669;">Earn</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:32px 28px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#0f172a;">
+            <h1 style="margin:0 0 12px;font-size:20px;line-height:28px;font-weight:600;">Reset your password</h1>
+            <p style="margin:0 0 24px;font-size:15px;line-height:24px;color:#475569;">We got a request to reset the password for your Virtual Earn account. Choose a new one with the button below.</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td align="center" style="border-radius:10px;background:#059669;">
+                  <a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=recovery" style="display:block;padding:13px 20px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:10px;">Choose a new password</a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:24px 0 6px;font-size:12px;line-height:18px;color:#64748b;">Button not working? Paste this link into your browser:</p>
+            <p style="margin:0;font-family:Menlo,Consolas,monospace;font-size:12px;line-height:18px;color:#059669;word-break:break-all;">{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=recovery</p>
+            <p style="margin:20px 0 0;font-size:12px;line-height:18px;color:#64748b;">This link works once and expires in 1 hour.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 8px 0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#64748b;text-align:center;">
+            If you didn't ask for this, ignore this email. Your Virtual Earn password stays the same.
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+{{- else -}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>Reset your password</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f5f4;-webkit-text-size-adjust:100%;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Choose a new password for your account.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3f5f4;">
+  <tr>
+    <td align="center" style="padding:40px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+        <tr>
+          <td align="center" style="padding-bottom:20px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.3px;color:#14201c;">
+            un<span style="color:#1f6b5c;">known</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#ffffff;border:1px solid #dfe5e2;border-radius:14px;padding:32px 28px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#14201c;">
+            <h1 style="margin:0 0 12px;font-size:20px;line-height:28px;font-weight:600;">Reset your password</h1>
+            <p style="margin:0 0 24px;font-size:15px;line-height:24px;color:#4a5753;">We got a request to reset the password for your account. Choose a new one with the button below.</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td align="center" style="border-radius:10px;background:#1f6b5c;">
+                  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/update-password" style="display:block;padding:13px 20px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:10px;">Choose a new password</a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:24px 0 6px;font-size:12px;line-height:18px;color:#6b7873;">Button not working? Paste this link into your browser:</p>
+            <p style="margin:0;font-family:Menlo,Consolas,monospace;font-size:12px;line-height:18px;color:#1f6b5c;word-break:break-all;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/update-password</p>
+            <p style="margin:20px 0 0;font-size:12px;line-height:18px;color:#6b7873;">This link works once and expires in 1 hour.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 8px 0;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#6b7873;text-align:center;">
+            If you didn't ask for this, ignore this email. Your password stays the same.<br>
+            Unknown never shows your email to anyone, including admins.
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+{{- end }}

@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect, RedirectType } from "next/navigation";
+import { authCallbackUrl } from "@/lib/auth/callback-url";
 import { safeRedirectPath } from "@/lib/auth/redirect";
 import type { FormState } from "@/lib/auth/form-state";
-import { getPublicEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -20,13 +20,6 @@ import {
 function text(formData: FormData, key: string): string {
   const value = formData.get(key);
   return typeof value === "string" ? value : "";
-}
-
-/** Callback URLs are built from configuration, never from the Host header. */
-function callbackUrl(next: string): string {
-  const url = new URL("/auth/callback", getPublicEnv().NEXT_PUBLIC_APP_URL);
-  url.searchParams.set("next", next);
-  return url.toString();
 }
 
 export async function signIn(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -69,7 +62,7 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
     options: {
       // Only the username is passed as metadata; roles are never client-controlled.
       data: { username: parsed.data.username },
-      emailRedirectTo: callbackUrl("/dashboard"),
+      emailRedirectTo: authCallbackUrl("/dashboard"),
     },
   });
 
@@ -95,7 +88,7 @@ export async function requestPasswordReset(_prev: FormState, formData: FormData)
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: callbackUrl("/reset-password"),
+    redirectTo: authCallbackUrl("/reset-password"),
   });
   if (error) logger.warn("password_reset_request_failed", { code: error.code ?? "unknown" });
 
