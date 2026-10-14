@@ -88,6 +88,22 @@ export type Database = {
         Update: { user_id?: string; role?: string };
         Relationships: [];
       };
+      /** Players can only select their own rows; writes happen in database functions. */
+      ve_notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: string;
+          title: string;
+          body: string;
+          link: string | null;
+          created_at: string;
+          read_at: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {

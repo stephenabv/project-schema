@@ -38,13 +38,20 @@ function isActive(pathname: string, href: string): boolean {
  * all nine fit beside the account buttons. Bottom (below md): fixed six-tab bar.
  */
 export function NavLinks({ variant }: { variant: "top" | "bottom" }) {
-  const pathname = usePathname();
+  return <NavLinkList variant={variant} pathname={usePathname()} />;
+}
 
+/**
+ * The link list. Rendered with no pathname as the Suspense fallback, so
+ * dynamic routes (such as a single notification) can still prerender a shell.
+ */
+export function NavLinkList({ variant, pathname }: { variant: "top" | "bottom"; pathname: string | null }) {
   return (
     <ul className={variant === "top" ? "hidden items-center gap-0.5 md:flex" : "grid grid-cols-6"}>
       {APP_NAV.filter((item) => variant === "top" || item.mobile).map(({ href, label, mobileLabel, mobileAlso, icon: Icon }) => {
         const active =
-          isActive(pathname, href) || (variant === "bottom" && (mobileAlso ?? []).some((path) => isActive(pathname, path)));
+          pathname !== null &&
+          (isActive(pathname, href) || (variant === "bottom" && (mobileAlso ?? []).some((path) => isActive(pathname, path))));
         return (
           <li key={href}>
             <Link

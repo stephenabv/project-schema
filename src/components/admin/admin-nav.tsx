@@ -41,22 +41,23 @@ export function AdminNav() {
  * dynamic admin routes (such as a payout review) can still prerender a shell.
  */
 export function AdminNavList({ pathname }: { pathname: string | null }) {
+  // Phones: two equal-width columns. Tablets: a wrapping row. Desktop: a sidebar column.
   return (
-    <ul className="flex flex-wrap gap-1 lg:flex-col">
+    <ul className="grid grid-cols-2 gap-1 sm:flex sm:flex-wrap lg:flex-col">
       {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
         const active =
           pathname !== null && (href === "/admin" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`));
         return (
-          <li key={href} className="shrink-0">
+          <li key={href} className="min-w-0 sm:shrink-0">
             <Link
               href={href}
               aria-current={active ? "page" : undefined}
-              className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium ${
+              className={`flex min-w-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium ${
                 active ? "bg-success-surface text-success-text" : "text-muted hover:text-foreground"
               }`}
             >
-              <Icon aria-hidden className="size-4" />
-              {label}
+              <Icon aria-hidden className="size-4 shrink-0" />
+              <span className="truncate">{label}</span>
             </Link>
           </li>
         );

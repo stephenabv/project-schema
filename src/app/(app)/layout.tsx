@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { signOut } from "@/app/(auth)/actions";
 import { AdminLink, MaintenanceNotice, NotificationBell, SuspensionNotice } from "@/components/layout/account-notices";
 import { Logo } from "@/components/layout/logo";
-import { NavLinks } from "@/components/layout/nav-links";
+import { NavLinkList, NavLinks } from "@/components/layout/nav-links";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button, ButtonLink } from "@/components/ui/button";
 
@@ -26,7 +26,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3 sm:gap-4">
           <Logo href="/dashboard" compact />
           <nav aria-label="Main">
-            <NavLinks variant="top" />
+            <Suspense fallback={<NavLinkList variant="top" pathname={null} />}>
+              <NavLinks variant="top" />
+            </Suspense>
           </nav>
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <Suspense fallback={null}>
@@ -60,7 +62,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <nav aria-label="Main (mobile)" className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
-        <NavLinks variant="bottom" />
+        <Suspense fallback={<NavLinkList variant="bottom" pathname={null} />}>
+          <NavLinks variant="bottom" />
+        </Suspense>
       </nav>
     </div>
   );
